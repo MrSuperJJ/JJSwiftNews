@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B797559CC47C01DB25D79C8F /* Pods_JJSwiftNews.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 603E4422A597CA8049958656 /* Pods_JJSwiftNews.framework */; };
 		C7B9646A1EF27F6A00928C07 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964691EF27F6A00928C07 /* AppDelegate.swift */; };
 		C7B964711EF27F6A00928C07 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7B964701EF27F6A00928C07 /* Assets.xcassets */; };
-		C7B964741EF27F6A00928C07 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C7B964721EF27F6A00928C07 /* LaunchScreen.storyboard */; };
 		C7B964871EF2820900928C07 /* JJContentScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B9647F1EF2820900928C07 /* JJContentScrollView.swift */; };
 		C7B964881EF2820900928C07 /* JJContentTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964801EF2820900928C07 /* JJContentTableView.swift */; };
 		C7B964891EF2820900928C07 /* JJErrorRetryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964811EF2820900928C07 /* JJErrorRetryView.swift */; };
@@ -18,14 +18,20 @@
 		C7B9648C1EF2820900928C07 /* JJTopicScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964841EF2820900928C07 /* JJTopicScrollView.swift */; };
 		C7B964901EF2827900928C07 /* JJWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B9648E1EF2827900928C07 /* JJWebViewController.swift */; };
 		C7B964911EF2827900928C07 /* NewsMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B9648F1EF2827900928C07 /* NewsMainViewController.swift */; };
+		C7B9649C1EF2850700928C07 /* JJCommonUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964961EF2850700928C07 /* JJCommonUtil.swift */; };
+		C7B9649D1EF2850700928C07 /* JJBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964981EF2850700928C07 /* JJBannerView.swift */; };
+		C7B9649E1EF2850700928C07 /* JJTextInsetsLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964991EF2850700928C07 /* JJTextInsetsLabel.swift */; };
+		C7B964A61EF2860B00928C07 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C7B964A51EF2860B00928C07 /* Info.plist */; };
+		C7B964AA1EF2865300928C07 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C7B964A81EF2865300928C07 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		107A8B174D79B336268D74ED /* Pods-JJSwiftNews.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JJSwiftNews.release.xcconfig"; path = "Pods/Target Support Files/Pods-JJSwiftNews/Pods-JJSwiftNews.release.xcconfig"; sourceTree = "<group>"; };
+		1A121B4DF18C11B102A04941 /* Pods-JJSwiftNews.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JJSwiftNews.debug.xcconfig"; path = "Pods/Target Support Files/Pods-JJSwiftNews/Pods-JJSwiftNews.debug.xcconfig"; sourceTree = "<group>"; };
+		603E4422A597CA8049958656 /* Pods_JJSwiftNews.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JJSwiftNews.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C7B964661EF27F6A00928C07 /* JJSwiftNews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JJSwiftNews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C7B964691EF27F6A00928C07 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C7B964701EF27F6A00928C07 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		C7B964731EF27F6A00928C07 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		C7B964751EF27F6A00928C07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C7B9647F1EF2820900928C07 /* JJContentScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJContentScrollView.swift; sourceTree = "<group>"; };
 		C7B964801EF2820900928C07 /* JJContentTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJContentTableView.swift; sourceTree = "<group>"; };
 		C7B964811EF2820900928C07 /* JJErrorRetryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJErrorRetryView.swift; sourceTree = "<group>"; };
@@ -34,6 +40,11 @@
 		C7B964841EF2820900928C07 /* JJTopicScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJTopicScrollView.swift; sourceTree = "<group>"; };
 		C7B9648E1EF2827900928C07 /* JJWebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJWebViewController.swift; sourceTree = "<group>"; };
 		C7B9648F1EF2827900928C07 /* NewsMainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewsMainViewController.swift; sourceTree = "<group>"; };
+		C7B964961EF2850700928C07 /* JJCommonUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJCommonUtil.swift; sourceTree = "<group>"; };
+		C7B964981EF2850700928C07 /* JJBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJBannerView.swift; sourceTree = "<group>"; };
+		C7B964991EF2850700928C07 /* JJTextInsetsLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJTextInsetsLabel.swift; sourceTree = "<group>"; };
+		C7B964A51EF2860B00928C07 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C7B964A91EF2865300928C07 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,17 +52,37 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B797559CC47C01DB25D79C8F /* Pods_JJSwiftNews.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		905671DD24F2407CA2D2D68E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				603E4422A597CA8049958656 /* Pods_JJSwiftNews.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9B024BD350FA2B2A9901DB00 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1A121B4DF18C11B102A04941 /* Pods-JJSwiftNews.debug.xcconfig */,
+				107A8B174D79B336268D74ED /* Pods-JJSwiftNews.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		C7B9645D1EF27F6900928C07 = {
 			isa = PBXGroup;
 			children = (
 				C7B964681EF27F6A00928C07 /* JJSwiftNews */,
 				C7B964671EF27F6A00928C07 /* Products */,
+				9B024BD350FA2B2A9901DB00 /* Pods */,
+				905671DD24F2407CA2D2D68E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -69,9 +100,8 @@
 				C7B964691EF27F6A00928C07 /* AppDelegate.swift */,
 				C7B9648D1EF2827900928C07 /* Controllers */,
 				C7B9647E1EF2820900928C07 /* Views */,
-				C7B964701EF27F6A00928C07 /* Assets.xcassets */,
-				C7B964721EF27F6A00928C07 /* LaunchScreen.storyboard */,
-				C7B964751EF27F6A00928C07 /* Info.plist */,
+				C7B964921EF2850700928C07 /* SwiftUtils */,
+				C7B964A71EF2862C00928C07 /* Supporting Files */,
 			);
 			path = JJSwiftNews;
 			sourceTree = "<group>";
@@ -98,6 +128,42 @@
 			path = Controllers;
 			sourceTree = "<group>";
 		};
+		C7B964921EF2850700928C07 /* SwiftUtils */ = {
+			isa = PBXGroup;
+			children = (
+				C7B964931EF2850700928C07 /* Utils */,
+				C7B964971EF2850700928C07 /* Views */,
+			);
+			path = SwiftUtils;
+			sourceTree = "<group>";
+		};
+		C7B964931EF2850700928C07 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				C7B964961EF2850700928C07 /* JJCommonUtil.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		C7B964971EF2850700928C07 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C7B964981EF2850700928C07 /* JJBannerView.swift */,
+				C7B964991EF2850700928C07 /* JJTextInsetsLabel.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C7B964A71EF2862C00928C07 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				C7B964701EF27F6A00928C07 /* Assets.xcassets */,
+				C7B964A81EF2865300928C07 /* LaunchScreen.storyboard */,
+				C7B964A51EF2860B00928C07 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -105,9 +171,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C7B964781EF27F6A00928C07 /* Build configuration list for PBXNativeTarget "JJSwiftNews" */;
 			buildPhases = (
+				E746203F6331F8AD12D97FE6 /* [CP] Check Pods Manifest.lock */,
 				C7B964621EF27F6A00928C07 /* Sources */,
 				C7B964631EF27F6A00928C07 /* Frameworks */,
 				C7B964641EF27F6A00928C07 /* Resources */,
+				335F5F250D7DBB4CB93B8C24 /* [CP] Embed Pods Frameworks */,
+				9AD4DE0D96305CD531D5CA21 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -158,22 +227,74 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C7B964741EF27F6A00928C07 /* LaunchScreen.storyboard in Resources */,
+				C7B964AA1EF2865300928C07 /* LaunchScreen.storyboard in Resources */,
+				C7B964A61EF2860B00928C07 /* Info.plist in Resources */,
 				C7B964711EF27F6A00928C07 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		335F5F250D7DBB4CB93B8C24 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-JJSwiftNews/Pods-JJSwiftNews-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9AD4DE0D96305CD531D5CA21 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-JJSwiftNews/Pods-JJSwiftNews-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E746203F6331F8AD12D97FE6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		C7B964621EF27F6A00928C07 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C7B9649C1EF2850700928C07 /* JJCommonUtil.swift in Sources */,
 				C7B964911EF2827900928C07 /* NewsMainViewController.swift in Sources */,
 				C7B964891EF2820900928C07 /* JJErrorRetryView.swift in Sources */,
+				C7B9649E1EF2850700928C07 /* JJTextInsetsLabel.swift in Sources */,
 				C7B9648C1EF2820900928C07 /* JJTopicScrollView.swift in Sources */,
 				C7B964871EF2820900928C07 /* JJContentScrollView.swift in Sources */,
+				C7B9649D1EF2850700928C07 /* JJBannerView.swift in Sources */,
 				C7B9648A1EF2820900928C07 /* JJNewsBannerView.swift in Sources */,
 				C7B9646A1EF27F6A00928C07 /* AppDelegate.swift in Sources */,
 				C7B964901EF2827900928C07 /* JJWebViewController.swift in Sources */,
@@ -185,10 +306,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		C7B964721EF27F6A00928C07 /* LaunchScreen.storyboard */ = {
+		C7B964A81EF2865300928C07 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				C7B964731EF27F6A00928C07 /* Base */,
+				C7B964A91EF2865300928C07 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -291,6 +412,7 @@
 		};
 		C7B964791EF27F6A00928C07 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1A121B4DF18C11B102A04941 /* Pods-JJSwiftNews.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = RAT87H825N;
@@ -304,6 +426,7 @@
 		};
 		C7B9647A1EF27F6A00928C07 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 107A8B174D79B336268D74ED /* Pods-JJSwiftNews.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = RAT87H825N;

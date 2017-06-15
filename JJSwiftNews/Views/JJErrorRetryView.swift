@@ -41,7 +41,7 @@ class JJErrorRetryView: UIView {
         if let errorTextColor = self.errorTextColor {
             errorLabel.textColor = errorTextColor
         } else {
-            errorLabel.textColor = cor12
+            errorLabel.textColor = UIColor(valueRGB: 0x999999, alpha: 1)
         }
         if let errorFont = self.errorFont {
             errorLabel.font = errorFont
