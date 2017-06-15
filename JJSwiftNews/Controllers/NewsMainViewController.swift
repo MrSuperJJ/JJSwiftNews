@@ -12,7 +12,6 @@ import Alamofire
 import MBProgressHUD
 
 let kReadedNewsKey = "ReadedNewsDictKey"
-let kCurrentPhoneKey = "save_login_phone"
 
 class NewsMainViewController: UIViewController {
 
@@ -39,6 +38,7 @@ class NewsMainViewController: UIViewController {
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.title = "资讯"
 
         let topicNameArray = newsTopicArray.map { $0["topic"]! }
         let topicViewWidth = CGFloat(100)
