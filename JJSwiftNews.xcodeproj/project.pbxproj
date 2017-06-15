@@ -8,20 +8,32 @@
 
 /* Begin PBXBuildFile section */
 		C7B9646A1EF27F6A00928C07 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964691EF27F6A00928C07 /* AppDelegate.swift */; };
-		C7B9646C1EF27F6A00928C07 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B9646B1EF27F6A00928C07 /* ViewController.swift */; };
-		C7B9646F1EF27F6A00928C07 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C7B9646D1EF27F6A00928C07 /* Main.storyboard */; };
 		C7B964711EF27F6A00928C07 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7B964701EF27F6A00928C07 /* Assets.xcassets */; };
 		C7B964741EF27F6A00928C07 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C7B964721EF27F6A00928C07 /* LaunchScreen.storyboard */; };
+		C7B964871EF2820900928C07 /* JJContentScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B9647F1EF2820900928C07 /* JJContentScrollView.swift */; };
+		C7B964881EF2820900928C07 /* JJContentTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964801EF2820900928C07 /* JJContentTableView.swift */; };
+		C7B964891EF2820900928C07 /* JJErrorRetryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964811EF2820900928C07 /* JJErrorRetryView.swift */; };
+		C7B9648A1EF2820900928C07 /* JJNewsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964821EF2820900928C07 /* JJNewsBannerView.swift */; };
+		C7B9648B1EF2820900928C07 /* JJNewsContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964831EF2820900928C07 /* JJNewsContentView.swift */; };
+		C7B9648C1EF2820900928C07 /* JJTopicScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B964841EF2820900928C07 /* JJTopicScrollView.swift */; };
+		C7B964901EF2827900928C07 /* JJWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B9648E1EF2827900928C07 /* JJWebViewController.swift */; };
+		C7B964911EF2827900928C07 /* NewsMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B9648F1EF2827900928C07 /* NewsMainViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		C7B964661EF27F6A00928C07 /* JJSwiftNews.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JJSwiftNews.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C7B964691EF27F6A00928C07 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		C7B9646B1EF27F6A00928C07 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		C7B9646E1EF27F6A00928C07 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		C7B964701EF27F6A00928C07 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C7B964731EF27F6A00928C07 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C7B964751EF27F6A00928C07 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C7B9647F1EF2820900928C07 /* JJContentScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJContentScrollView.swift; sourceTree = "<group>"; };
+		C7B964801EF2820900928C07 /* JJContentTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJContentTableView.swift; sourceTree = "<group>"; };
+		C7B964811EF2820900928C07 /* JJErrorRetryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJErrorRetryView.swift; sourceTree = "<group>"; };
+		C7B964821EF2820900928C07 /* JJNewsBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJNewsBannerView.swift; sourceTree = "<group>"; };
+		C7B964831EF2820900928C07 /* JJNewsContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJNewsContentView.swift; sourceTree = "<group>"; };
+		C7B964841EF2820900928C07 /* JJTopicScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJTopicScrollView.swift; sourceTree = "<group>"; };
+		C7B9648E1EF2827900928C07 /* JJWebViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JJWebViewController.swift; sourceTree = "<group>"; };
+		C7B9648F1EF2827900928C07 /* NewsMainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewsMainViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,13 +67,35 @@
 			isa = PBXGroup;
 			children = (
 				C7B964691EF27F6A00928C07 /* AppDelegate.swift */,
-				C7B9646B1EF27F6A00928C07 /* ViewController.swift */,
-				C7B9646D1EF27F6A00928C07 /* Main.storyboard */,
+				C7B9648D1EF2827900928C07 /* Controllers */,
+				C7B9647E1EF2820900928C07 /* Views */,
 				C7B964701EF27F6A00928C07 /* Assets.xcassets */,
 				C7B964721EF27F6A00928C07 /* LaunchScreen.storyboard */,
 				C7B964751EF27F6A00928C07 /* Info.plist */,
 			);
 			path = JJSwiftNews;
+			sourceTree = "<group>";
+		};
+		C7B9647E1EF2820900928C07 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C7B9647F1EF2820900928C07 /* JJContentScrollView.swift */,
+				C7B964801EF2820900928C07 /* JJContentTableView.swift */,
+				C7B964811EF2820900928C07 /* JJErrorRetryView.swift */,
+				C7B964821EF2820900928C07 /* JJNewsBannerView.swift */,
+				C7B964831EF2820900928C07 /* JJNewsContentView.swift */,
+				C7B964841EF2820900928C07 /* JJTopicScrollView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C7B9648D1EF2827900928C07 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				C7B9648E1EF2827900928C07 /* JJWebViewController.swift */,
+				C7B9648F1EF2827900928C07 /* NewsMainViewController.swift */,
+			);
+			path = Controllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -126,7 +160,6 @@
 			files = (
 				C7B964741EF27F6A00928C07 /* LaunchScreen.storyboard in Resources */,
 				C7B964711EF27F6A00928C07 /* Assets.xcassets in Resources */,
-				C7B9646F1EF27F6A00928C07 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -137,22 +170,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C7B9646C1EF27F6A00928C07 /* ViewController.swift in Sources */,
+				C7B964911EF2827900928C07 /* NewsMainViewController.swift in Sources */,
+				C7B964891EF2820900928C07 /* JJErrorRetryView.swift in Sources */,
+				C7B9648C1EF2820900928C07 /* JJTopicScrollView.swift in Sources */,
+				C7B964871EF2820900928C07 /* JJContentScrollView.swift in Sources */,
+				C7B9648A1EF2820900928C07 /* JJNewsBannerView.swift in Sources */,
 				C7B9646A1EF27F6A00928C07 /* AppDelegate.swift in Sources */,
+				C7B964901EF2827900928C07 /* JJWebViewController.swift in Sources */,
+				C7B9648B1EF2820900928C07 /* JJNewsContentView.swift in Sources */,
+				C7B964881EF2820900928C07 /* JJContentTableView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		C7B9646D1EF27F6A00928C07 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				C7B9646E1EF27F6A00928C07 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		C7B964721EF27F6A00928C07 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -302,6 +334,7 @@
 				C7B9647A1EF27F6A00928C07 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
