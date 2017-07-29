@@ -86,6 +86,6 @@
 </div>
 
 <div yne-bulb-block="paragraph" style="white-space: pre-wrap; line-height: 1.5; font-size: 14px;">
-	refactoring分支已经对数据存取方式进行重构
+	Tips:refactoring分支已经对数据存取方式进行重构
 </div>
 
