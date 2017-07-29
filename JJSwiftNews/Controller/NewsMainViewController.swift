@@ -30,8 +30,8 @@ class NewsMainViewController: UIViewController {
                           ["topic": "财经", "type": "caijing"],
                           ["topic": "时尚", "type": "shishang"]]
     
-    var topContentArray = ContentArray()
-    var norContentArray = ContentArray()
+    var bannerModelArray = Array<JJBannerModel>()
+    var newsModelArray   = Array<JJNewsModel>()
     var lastNewsUniqueKey = ""               // 最后一条资讯的uniquekey
     var currTopicType = ""                   // 最近选择的TopicType
     
@@ -139,17 +139,17 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
         self.requestData(type: currTopicType) { [unowned self] (contentJSON, error) in
             if let contentScrollView = self.bodyScrollView {
                 if let contentJSON = contentJSON {
-                    self.topContentArray.removeAll()
-                    self.norContentArray.removeAll()
+                    self.bannerModelArray.removeAll()
+                    self.newsModelArray.removeAll()
                     self.lastNewsUniqueKey = ""
                     _ = contentJSON.split(whereSeparator: {(index, subJSON) -> Bool in
-                        Int(index)! < 4 ? self.topContentArray.append(subJSON) : self.norContentArray.append(subJSON)
+                        Int(index)! < 4 ? self.bannerModelArray.append(JJBannerModel(subJSON)) : self.newsModelArray.append(JJNewsModel(subJSON))
                         if index == String(contentJSON.count - 1) {
                             self.lastNewsUniqueKey = subJSON["uniquekey"].stringValue
                         }
                         return true
                     })
-                    contentScrollView.refreshTableView(topContentArray: self.topContentArray, norContentArray: self.norContentArray, isPullToRefresh: true)
+                    contentScrollView.refreshTableView(bannerModelArray: self.bannerModelArray, newsModelArray: self.newsModelArray, isPullToRefresh: true)
                 } else {
                     if let error = error {
                         print(error.description)
@@ -168,13 +168,13 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
                 if let contentJSON = contentJSON {
                     contentScrollView.stopLoadingMore()
                     _ = contentJSON.split(whereSeparator: {(index, subJSON) -> Bool in
-                        self.norContentArray.append(subJSON)
+                        self.newsModelArray.append(JJNewsModel(subJSON))
                         if index == String(contentJSON.count - 1) {
                             self.lastNewsUniqueKey = subJSON["uniquekey"].stringValue
                         }
                         return true
                     })
-                    contentScrollView.refreshTableView(topContentArray: self.topContentArray, norContentArray: self.norContentArray, isPullToRefresh: false)
+                    contentScrollView.refreshTableView(bannerModelArray: self.bannerModelArray, newsModelArray: self.newsModelArray, isPullToRefresh: false)
                 } else {
                     if let error = error {
                         print(error.description)
@@ -191,21 +191,21 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     }
     
     internal func didTableViewCellSelected(index: Int, isBanner: Bool) {
-        let contentJSON = isBanner ? topContentArray[index] : norContentArray[index]
-        let uniqueKey = contentJSON["uniquekey"].stringValue
-        let requestURLPath = contentJSON["url"].stringValue
-        
-        let newsDetailController = JJWebViewController()
-        newsDetailController.requestURLPath = requestURLPath
-        self.navigationController?.pushViewController(newsDetailController, animated: true)
-        // 更新已读状态
-        var readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) ?? [String : Bool]()
-        readedNewsDict["\(uniqueKey)"] = true
-        UserDefaults.standard.set(readedNewsDict, forKey: kReadedNewsKey)
-        UserDefaults.standard.synchronize()
-        if !isBanner, let contentScrollView = self.bodyScrollView {
-            contentScrollView.refreshTabaleCellReadedState(index: index, isBanner: false)
-        }
+//        let contentJSON = isBanner ? bannerModelArray[index] : newsModelArray[index]
+//        let uniqueKey = contentJSON["uniquekey"].stringValue
+//        let requestURLPath = contentJSON["url"].stringValue
+//        
+//        let newsDetailController = JJWebViewController()
+//        newsDetailController.requestURLPath = requestURLPath
+//        self.navigationController?.pushViewController(newsDetailController, animated: true)
+//        // 更新已读状态
+//        var readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) ?? [String : Bool]()
+//        readedNewsDict["\(uniqueKey)"] = true
+//        UserDefaults.standard.set(readedNewsDict, forKey: kReadedNewsKey)
+//        UserDefaults.standard.synchronize()
+//        if !isBanner, let contentScrollView = self.bodyScrollView {
+//            contentScrollView.refreshTabaleCellReadedState(index: index, isBanner: false)
+//        }
     }
 }
 

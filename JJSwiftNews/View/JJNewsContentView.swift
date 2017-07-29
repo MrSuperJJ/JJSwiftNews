@@ -67,15 +67,16 @@ class JJNewsContentView: UIView {
     }
 
     // MARK: - 更新页面数据
-    internal func updateViewData(norContentJSON: JSON, isPure: Bool) {
+    internal func updateView(newsModel: JJNewsModelType) {
+        guard let newsModel = newsModel as? JJNewsModel else { return }
         // 资讯图片
         if newsImageView != nil {
             newsImageView.backgroundColor = UIColor.gray
-            newsImageView.sd_setImage(with: URL(string: norContentJSON["thumbnail_pic_s"].stringValue))
+            newsImageView.sd_setImage(with: URL(string: newsModel.imageLink))
         }
         // 资讯标题
-        var newsTitleViewText = norContentJSON["title"].stringValue
-        let maxTextLength = isPure == true ? 40 : 30
+        var newsTitleViewText = newsModel.title
+        let maxTextLength = newsModel.isPure == true ? 40 : 30
         if newsTitleViewText.characters.count > maxTextLength {
             let index = newsTitleViewText.index(newsTitleViewText.startIndex, offsetBy: maxTextLength)
             newsTitleViewText = newsTitleViewText.substring(to: index)
@@ -87,7 +88,7 @@ class JJNewsContentView: UIView {
         var titleTextColor = UIColor(valueRGB: 0x333333, alpha: 1)
         let readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) as? [String : Bool]
         if let readedNewsDict = readedNewsDict {
-            let uniqueKey = norContentJSON["uniquekey"].stringValue
+            let uniqueKey = newsModel.uniquekey
             let isNewsReaded = readedNewsDict["\(uniqueKey)"]
             if let isNewsReaded = isNewsReaded, isNewsReaded == true {
                 titleTextColor = UIColor(valueRGB: 0x999999, alpha: 1)
@@ -96,7 +97,7 @@ class JJNewsContentView: UIView {
         newsTitleView.textColor = titleTextColor
         // 资讯副标题
         newsSubTitleView.frame = CGRect(x: 0, y: newsTitleView.bottom + CGFloat(adValue:6), width: newsContentView.width, height: CGFloat(adValue:12))
-        let subTitleViewText = norContentJSON["author_name"].stringValue
+        let subTitleViewText = newsModel.authorName
         newsSubTitleView.text = subTitleViewText
     }
 }

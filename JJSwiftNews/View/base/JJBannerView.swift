@@ -19,7 +19,9 @@ class JJBannerView: UIView {
     
     // MARK: - Properties
     weak internal var delegate: JJBannerViewDelegate?
-    
+    // 是否手动拖动后继续自动滚动，默认为false
+    internal var shouldScrollAutomatically = false
+
     fileprivate lazy var bannerScrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.backgroundColor = UIColor.white
@@ -37,7 +39,7 @@ class JJBannerView: UIView {
         return pageController
     }()
     
-    fileprivate var dataSourceArrayCount = 0             ///<数据源数组长度
+    fileprivate var bannerViewCount = 0                  ///<Banner视图数量
     fileprivate var currentBannerIndex = 0               ///<当前Banner位置
     fileprivate var bannerScrollTimer: Timer?            ///<Banner滚动定时器
     
@@ -48,11 +50,13 @@ class JJBannerView: UIView {
 
         self.addSubview(bannerScrollView)
         self.addSubview(bannerPageController)
+
+        bannerScrollView.frame = self.frame
     }
 
-    internal convenience init<T>(frame: CGRect, dataSourceArray: Array<T>) {
+    internal convenience init<T: JJNewsModelType>(frame: CGRect, bannerModelArray: Array<T>) {
         self.init(frame: frame)
-        self.setupScrollViewContents(dataSourceArray: dataSourceArray)
+        self.setupScrollViewContents(bannerModelArray: bannerModelArray)
     }
     
     internal required init?(coder aDecoder: NSCoder) {
@@ -60,38 +64,69 @@ class JJBannerView: UIView {
     }
 
     // MARK: - 设置Banner内容
-    internal func setupScrollViewContents(dataSourceArray: Array<Any>) {
-        guard dataSourceArray.count > 0 else { return }
-        self.dataSourceArrayCount = dataSourceArray.count
-        
-        bannerScrollView.frame = self.frame
-        bannerScrollView.contentSize = CGSize(width: CGFloat(dataSourceArrayCount + 2) * ScreenWidth, height: 0)
+    final internal func setupScrollViewContents<T: JJNewsModelType>(bannerModelArray: Array<T>) {
+        guard bannerModelArray.count > 0 else { return }
+        self.bannerViewCount = bannerModelArray.count
         bannerScrollView.removeAllSubviews()
-        bannerScrollView.setContentOffset(CGPoint(x: ScreenWidth, y: 0), animated: false)
-        
-        setupBannerPageControllerFrame(bannerScrollView: bannerScrollView, bannerPageController: bannerPageController, dataSourceArrayCount: dataSourceArrayCount)
-        bannerPageController.numberOfPages = dataSourceArrayCount
-        
-        for index in 0 ..< dataSourceArrayCount + 2 {
-            let dataSource: Any
-            switch index {
-            case 0:
-                dataSource = dataSourceArray[dataSourceArrayCount - 1]
-            case dataSourceArrayCount + 1:
-                dataSource = dataSourceArray[0]
-            default:
-                dataSource = dataSourceArray[index - 1]
+
+        if bannerViewCount == 1 {
+            let index = 0
+            let bannerView = fetchBannerView(index: index)
+            bannerScrollView.addSubview(bannerView)
+            setupBannerViewContents(bannerView: bannerView, bannerPageController: bannerPageController, bannerModel: bannerModelArray[0])
+        } else {
+            bannerScrollView.contentSize = CGSize(width: CGFloat(bannerViewCount + 2) * ScreenWidth, height: 0)
+            bannerScrollView.setContentOffset(CGPoint(x: ScreenWidth, y: 0), animated: false)
+
+            setupBannerPageControllerFrame(bannerScrollView: bannerScrollView, bannerPageController: bannerPageController, bannerViewCount: bannerViewCount)
+            bannerPageController.numberOfPages = bannerViewCount
+
+            for index in 0 ..< bannerViewCount + 2 {
+                let bannerView = fetchBannerView(index: index)
+                bannerScrollView.addSubview(bannerView)
+                let realIndex: Int
+                switch index {
+                case 0:
+                    realIndex = bannerViewCount - 1
+                case bannerViewCount + 1:
+                    realIndex = 0
+                default:
+                    realIndex = index - 1
+                }
+                setupBannerViewContents(bannerView: bannerView, bannerPageController: bannerPageController, bannerModel: bannerModelArray[realIndex])
             }
-            setupBannerViewContents(bannerScrollView: bannerScrollView, bannerPageController: bannerPageController, index: index, dataSource: dataSource)
         }
     }
-    
-    // 设置PageController的Frame
-    internal func setupBannerPageControllerFrame(bannerScrollView: UIScrollView, bannerPageController: UIPageControl, dataSourceArrayCount: Int) {
+
+    /// 返回每个Banner视图的父类
+    ///
+    /// - Parameter index: 下标
+    /// - Returns: BannerView
+    private func fetchBannerView(index: Int) -> UIView {
+        let bannerView = UIView(frame: self.frame)
+        bannerView.center = CGPoint(x: (CGFloat(index)+0.5) * bannerScrollView.width, y: bannerScrollView.height * 0.5)
+        bannerView.tag = index
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(bannerImageViewTapped(sender:)))
+        bannerView.addGestureRecognizer(tapGestureRecognizer)
+        return bannerView
     }
-    
-    // 设置Banner具体内容
-    internal func setupBannerViewContents(bannerScrollView: UIScrollView, bannerPageController: UIPageControl, index: Int, dataSource: Any) {
+
+    /// 设置PageController的布局
+    ///
+    /// - Parameters:
+    ///   - bannerScrollView: 已初始化的bannerScrollView
+    ///   - bannerPageController: 已初始化的bannerPageController
+    ///   - bannerViewCount: bannerView数量
+    internal func setupBannerPageControllerFrame(bannerScrollView: UIScrollView, bannerPageController: UIPageControl, bannerViewCount: Int) {
+    }
+
+    /// 设置Banner内容
+    ///
+    /// - Parameters:
+    ///   - bannerView: Banner内容的父视图
+    ///   - bannerPageController: Banner页面控制器
+    ///   - bannerModel: 遵循JJNewsModelType的Model
+    internal func setupBannerViewContents<T: JJNewsModelType>(bannerView: UIView, bannerPageController: UIPageControl, bannerModel: T) {
     }
     
 }
@@ -100,12 +135,12 @@ class JJBannerView: UIView {
 extension JJBannerView: UIScrollViewDelegate {
     
     internal func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.contentOffset.x >= CGFloat(dataSourceArrayCount + 1) * ScreenWidth {
+        if scrollView.contentOffset.x >= CGFloat(bannerViewCount + 1) * ScreenWidth {
             // 右滑超过最后页
             bannerScrollView.contentOffset = CGPoint(x: ScreenWidth, y: 0)
         } else if scrollView.contentOffset.x <= 0 {
             // 左划超过第一页
-            bannerScrollView.contentOffset = CGPoint(x: CGFloat(dataSourceArrayCount) * ScreenWidth, y: 0)
+            bannerScrollView.contentOffset = CGPoint(x: CGFloat(bannerViewCount) * ScreenWidth, y: 0)
         }
         currentBannerIndex = Int(bannerScrollView.contentOffset.x / ScreenWidth);
         bannerPageController.currentPage = currentBannerIndex - 1
@@ -116,12 +151,14 @@ extension JJBannerView: UIScrollViewDelegate {
     }
     
     internal func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        startScroll()   // 结束拖动时开始自动滚动
+        if  shouldScrollAutomatically == true {
+            startScroll()   // 结束拖动时开始自动滚动
+        }
     }
     
     // MARK: 定时器滚动
     internal func startScroll() {
-        guard dataSourceArrayCount > 1 else { return }
+        guard bannerViewCount > 1 else { return }
         stopScroll()   // 先结束上一次的定时器
         bannerScrollTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(scrollToNextPage), userInfo: nil, repeats: true)
     }
@@ -150,8 +187,8 @@ extension JJBannerView {
         if let tappedImageView = tappedImageView {
             switch tappedImageView.tag {
             case 0:
-                index = dataSourceArrayCount - 1
-            case dataSourceArrayCount + 1:
+                index = bannerViewCount - 1
+            case bannerViewCount + 1:
                 index = 0
             default:
                 index = tappedImageView.tag - 1

@@ -10,8 +10,6 @@ import UIKit
 import SwiftyJSON
 import MJRefresh
 
-internal typealias ContentArray = Array<JSON>
-
 @objc(JJContentScrollViewDelegate)
 protocol JJContentScrollViewDelegate {
     
@@ -44,8 +42,8 @@ class JJContentScrollView: UIView {
     fileprivate let norImageTextCellReuseIdentifier = "NorImageTextCellReuseIdentifier"      ///<普通Cell-图文
     fileprivate let topCellHeight = CGFloat(adValue: 162)
     fileprivate let norCellHeight = CGFloat(adValue: 76)
-    fileprivate var topContentArray = ContentArray()
-    fileprivate var norContentArray = ContentArray()
+    fileprivate var bannerModelArray = Array<JJBannerModel>()
+    fileprivate var newsModelArray   = Array<JJNewsModel>()
 
     fileprivate let contentViewTagIndex = 1000 // 初始ContentView的Tag偏移量
     private var lastContentViewTag: Int    // 上次选中的ContentView的Tag
@@ -137,16 +135,16 @@ class JJContentScrollView: UIView {
     }
 
     // 刷新TableView内容
-    public func refreshTableView(topContentArray: ContentArray, norContentArray: ContentArray, isPullToRefresh: Bool) {
-        self.topContentArray = topContentArray
-        self.norContentArray = norContentArray
+    public func refreshTableView(bannerModelArray: Array<JJBannerModel>, newsModelArray: Array<JJNewsModel>, isPullToRefresh: Bool) {
+        self.bannerModelArray = bannerModelArray
+        self.newsModelArray = newsModelArray
         if let currentTableView = currentTableView {
             currentTableView.hasReloadDataBefore = true
             currentTableView.reloadData()
 
             if isPullToRefresh == true { // 下拉刷新后开启计时器
                 DispatchQueue.main.async { // TableView刷新后启动定时器
-                    if let currentBannerView = self.currentBannerView {
+                    if let currentBannerView = self.currentBannerView , currentBannerView.shouldScrollAutomatically == true {
                         currentBannerView.startScroll()
                     }
                 }
@@ -252,7 +250,7 @@ extension JJContentScrollView: UITableViewDelegate, UITableViewDataSource {
         if section == 0 {
             return 1
         } else {
-            return norContentArray.count
+            return newsModelArray.count
         }
     }
     
@@ -271,27 +269,28 @@ extension JJContentScrollView: UITableViewDelegate, UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: topCellReuseIdentifier, for: indexPath)
             let bannerView = cell.viewWithTag(contentViewTagIndex) as? JJNewsBannerView
             if let bannerView = bannerView {
-                bannerView.setupScrollViewContents(dataSourceArray: topContentArray)
+                bannerView.setupScrollViewContents(bannerModelArray: bannerModelArray)
             } else {
                 let bannerView = JJNewsBannerView(frame: CGRect(x: 0, y:0, width:self.width, height: topCellHeight))
                 bannerView.delegate = self
+                bannerView.shouldScrollAutomatically = true
                 bannerView.tag = contentViewTagIndex
                 cell.contentView.addSubview(bannerView)
             }
             return cell
         } else {
-            let contentJSON = norContentArray[indexPath.row]
-            let isPure = contentJSON["ispure"].boolValue
+            let newsModel = newsModelArray[indexPath.row]
+            let isPure = newsModel.isPure
             let cellReuseIdentifiter = isPure ? norPureTextCellReuseIdentifier : norImageTextCellReuseIdentifier
             let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifiter, for: indexPath)
-            if norContentArray.count > indexPath.row {
+            if newsModelArray.count > indexPath.row {
                 let contentView = cell.viewWithTag(contentViewTagIndex) as? JJNewsContentView
                 if let contentView = contentView {
-                    contentView.updateViewData(norContentJSON: contentJSON, isPure: isPure)
+                    contentView.updateView(newsModel: newsModel)
                 } else {
                     let contentView = JJNewsContentView(frame: CGRect(x: 0, y:0, width:self.width, height: norCellHeight), isPure: isPure)
                     contentView.tag = contentViewTagIndex
-                    contentView.updateViewData(norContentJSON: contentJSON, isPure: isPure)
+                    contentView.updateView(newsModel: newsModel)
                     cell.contentView.addSubview(contentView)
                 }
             }
