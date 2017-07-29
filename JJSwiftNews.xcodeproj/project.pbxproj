@@ -95,12 +95,12 @@
 			isa = PBXGroup;
 			children = (
 				46FCD3431F2CDF5600CE741E /* base */,
-				46FCD3481F2CDFA700CE741E /* JJNewsBannerView.swift */,
 				46FCD3541F2CF48700CE741E /* JJContentScrollView.swift */,
+				46FCD3581F2CF48700CE741E /* JJTopicScrollView.swift */,
+				46FCD3481F2CDFA700CE741E /* JJNewsBannerView.swift */,
+				46FCD3571F2CF48700CE741E /* JJNewsContentView.swift */,
 				46FCD3551F2CF48700CE741E /* JJContentTableView.swift */,
 				46FCD3561F2CF48700CE741E /* JJErrorRetryView.swift */,
-				46FCD3571F2CF48700CE741E /* JJNewsContentView.swift */,
-				46FCD3581F2CF48700CE741E /* JJTopicScrollView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
