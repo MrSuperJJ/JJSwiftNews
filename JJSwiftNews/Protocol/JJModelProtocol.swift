@@ -8,5 +8,22 @@
 
 import Foundation
 
+/// Banner协议
+protocol JJBannerModelType {
+}
+
+/// 资讯协议
 protocol JJNewsModelType {
+    /// 资讯标题
+    var title: String { get }
+    /// 资讯图片连接
+    var imageLink: String { get }
+    /// 是否纯文本资讯
+    var isPure: Bool { get }
+    /// 资讯唯一标识
+    var uniquekey: String { get }
+    /// 资讯来源
+    var authorName: String { get }
+    /// 资讯连接
+    var url: String { get }
 }

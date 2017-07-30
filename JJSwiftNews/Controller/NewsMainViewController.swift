@@ -191,21 +191,30 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     }
     
     internal func didTableViewCellSelected(index: Int, isBanner: Bool) {
-//        let contentJSON = isBanner ? bannerModelArray[index] : newsModelArray[index]
-//        let uniqueKey = contentJSON["uniquekey"].stringValue
-//        let requestURLPath = contentJSON["url"].stringValue
-//        
-//        let newsDetailController = JJWebViewController()
-//        newsDetailController.requestURLPath = requestURLPath
-//        self.navigationController?.pushViewController(newsDetailController, animated: true)
-//        // 更新已读状态
-//        var readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) ?? [String : Bool]()
-//        readedNewsDict["\(uniqueKey)"] = true
-//        UserDefaults.standard.set(readedNewsDict, forKey: kReadedNewsKey)
-//        UserDefaults.standard.synchronize()
-//        if !isBanner, let contentScrollView = self.bodyScrollView {
-//            contentScrollView.refreshTabaleCellReadedState(index: index, isBanner: false)
-//        }
+        let currentModel: JJNewsModelType = isBanner ? bannerModelArray[index] : newsModelArray[index]
+        let uniqueKey: String
+        let requestURLPath: String
+        if let bannerModel = currentModel as? JJBannerModel {
+            uniqueKey = bannerModel.uniquekey
+            requestURLPath = bannerModel.url
+        } else if let newsModel = currentModel as? JJNewsModel {
+            uniqueKey = newsModel.uniquekey
+            requestURLPath = newsModel.url
+        } else {
+            return
+        }
+        
+        let newsDetailController = JJWebViewController()
+        newsDetailController.requestURLPath = requestURLPath
+        self.navigationController?.pushViewController(newsDetailController, animated: true)
+        // 更新已读状态
+        var readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) ?? [String : Bool]()
+        readedNewsDict["\(uniqueKey)"] = true
+        UserDefaults.standard.set(readedNewsDict, forKey: kReadedNewsKey)
+        UserDefaults.standard.synchronize()
+        if !isBanner, let contentScrollView = self.bodyScrollView {
+            contentScrollView.refreshTabaleCellReadedState(index: index, isBanner: false)
+        }
     }
 }
 

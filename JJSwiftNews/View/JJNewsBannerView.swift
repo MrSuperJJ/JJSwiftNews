@@ -17,7 +17,7 @@ class JJNewsBannerView: JJBannerView {
         bannerPageController.frame = CGRect(x: ScreenWidth - CGFloat(20 * dataSourceArrayCount), y: bannerScrollView.bottom - CGFloat(adValue: 22), width: CGFloat(20 * dataSourceArrayCount), height: CGFloat(adValue: 10))
     }
 
-    override func setupBannerViewContents<T>(bannerView: UIView, bannerPageController: UIPageControl, bannerModel: T) where T : JJNewsModelType {
+    override func setupBannerViewContents<T>(bannerView: UIView, bannerPageController: UIPageControl, bannerModel: T) where T : JJBannerModelType {
         guard let bannerModel = bannerModel as? JJBannerModel else { return }
         // Banner图片
         let bannerImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: bannerView.width, height: bannerView.height))

@@ -9,15 +9,45 @@
 import Foundation
 import SwiftyJSON
 
-struct JJBannerModel: JJNewsModelType {
+struct JJBannerModel: JJNewsModelType, JJBannerModelType {
 
-    /// banner标题
-    let title: String
-    /// banner图片连接
-    let imageLink: String
+    var title: String {
+        return newsTitle
+    }
 
-    init(_ bannerJSON: JSON) {
-        title = bannerJSON["title"].stringValue
-        imageLink = bannerJSON["thumbnail_pic_s"].stringValue
+    var imageLink: String {
+        return newsImageLink
+    }
+
+    var isPure: Bool {
+        return isNewsPure
+    }
+
+    var uniquekey: String {
+        return newsUniquekey
+    }
+
+    var authorName: String {
+        return newsAuthorName
+    }
+
+    var url: String {
+        return newsURL
+    }
+
+    private let newsTitle: String
+    private let newsImageLink: String
+    private let isNewsPure: Bool
+    private let newsUniquekey: String
+    private let newsAuthorName: String
+    private let newsURL: String
+
+    init(_ newsJSON: JSON) {
+        newsTitle = newsJSON["title"].stringValue
+        newsImageLink = newsJSON["thumbnail_pic_s"].stringValue
+        isNewsPure = newsJSON["ispure"].boolValue
+        newsUniquekey = newsJSON["uniquekey"].stringValue
+        newsAuthorName = newsJSON["author_name"].stringValue
+        newsURL = newsJSON["url"].stringValue
     }
 }

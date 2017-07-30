@@ -54,7 +54,7 @@ class JJBannerView: UIView {
         bannerScrollView.frame = self.frame
     }
 
-    internal convenience init<T: JJNewsModelType>(frame: CGRect, bannerModelArray: Array<T>) {
+    internal convenience init<T: JJBannerModelType>(frame: CGRect, bannerModelArray: Array<T>) {
         self.init(frame: frame)
         self.setupScrollViewContents(bannerModelArray: bannerModelArray)
     }
@@ -64,7 +64,7 @@ class JJBannerView: UIView {
     }
 
     // MARK: - 设置Banner内容
-    final internal func setupScrollViewContents<T: JJNewsModelType>(bannerModelArray: Array<T>) {
+    final internal func setupScrollViewContents<T: JJBannerModelType>(bannerModelArray: Array<T>) {
         guard bannerModelArray.count > 0 else { return }
         self.bannerViewCount = bannerModelArray.count
         bannerScrollView.removeAllSubviews()
@@ -125,8 +125,8 @@ class JJBannerView: UIView {
     /// - Parameters:
     ///   - bannerView: Banner内容的父视图
     ///   - bannerPageController: Banner页面控制器
-    ///   - bannerModel: 遵循JJNewsModelType的Model
-    internal func setupBannerViewContents<T: JJNewsModelType>(bannerView: UIView, bannerPageController: UIPageControl, bannerModel: T) {
+    ///   - bannerModel: 遵循JJBannerModelType的Model
+    internal func setupBannerViewContents<T: JJBannerModelType>(bannerView: UIView, bannerPageController: UIPageControl, bannerModel: T) {
     }
     
 }
