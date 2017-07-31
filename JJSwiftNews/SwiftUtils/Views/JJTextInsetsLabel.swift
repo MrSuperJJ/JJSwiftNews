@@ -13,6 +13,10 @@ class JJTextInsetsLabel: UILabel {
 
     private var textInsets: UIEdgeInsets = .zero
 
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+
     internal init(frame: CGRect, textInsets: UIEdgeInsets) {
         self.textInsets = textInsets
         super.init(frame: frame)

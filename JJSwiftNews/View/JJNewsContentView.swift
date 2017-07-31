@@ -26,21 +26,20 @@ class JJNewsContentView: UIView {
         return newsContentView
     }()
     /// 资讯标题视图
-    private lazy var newsTitleView: UILabel = {
-        let newsTitleView = UILabel()
-        newsTitleView.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
-        newsTitleView.numberOfLines = 0
-        newsTitleView.lineBreakMode = .byCharWrapping
-        return newsTitleView
+    private lazy var newsTitleLabel: UILabel = {
+        let newsTitleLabel = UILabel()
+        newsTitleLabel.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
+        newsTitleLabel.numberOfLines = 0
+        newsTitleLabel.lineBreakMode = .byTruncatingTail
+        return newsTitleLabel
     }()
     /// 资讯副标题视图
-    private lazy var newsSubTitleView: UILabel = {
-        let newsSubTitleView = UILabel()
-        newsSubTitleView.textColor = UIColor(valueRGB: 0x999999, alpha: 1)
-        newsSubTitleView.font = UIFont.systemFont(ofSize: CGFloat(adValue: 12))
-        newsSubTitleView.numberOfLines = 0
-        newsSubTitleView.lineBreakMode = .byCharWrapping
-        return newsSubTitleView
+    private lazy var newsSubTitleLabel: UILabel = {
+        let newsSubTitleLabel = UILabel()
+        newsSubTitleLabel.textColor = UIColor(valueRGB: 0x999999, alpha: 1)
+        newsSubTitleLabel.font = UIFont.systemFont(ofSize: CGFloat(adValue: 12))
+        newsSubTitleLabel.lineBreakMode = .byCharWrapping
+        return newsSubTitleLabel
     }()
     /// 分割线
     private lazy var bottomLine: UIView = {
@@ -69,8 +68,8 @@ class JJNewsContentView: UIView {
         let subViewHeight: CGFloat = 60
         
         self.addSubview(newsContentView)
-        newsContentView.addSubview(newsTitleView)
-        newsContentView.addSubview(newsSubTitleView)
+        newsContentView.addSubview(newsTitleLabel)
+        newsContentView.addSubview(newsSubTitleLabel)
         self.addSubview(bottomLine)
         // 资讯图片和内容
         if isPure { // 纯文本界面
@@ -86,7 +85,7 @@ class JJNewsContentView: UIView {
                 make.left.equalTo(self).offset(CGFloat(adValue: 10))
                 make.top.equalTo(self).offset(CGFloat(adValue: subViewTop))
                 make.width.equalTo(CGFloat(adValue: 76.5))
-                make.height.equalTo(CGFloat(adValue: 60))
+                make.height.equalTo(CGFloat(adValue: subViewHeight))
             })
 
             newsContentView.snp.makeConstraints { (make) in
@@ -97,16 +96,16 @@ class JJNewsContentView: UIView {
             }
         }
         // 资讯标题
-        newsTitleView.snp.makeConstraints { (make) in
+        newsTitleLabel.snp.makeConstraints { (make) in
             make.left.equalTo(newsContentView)
             make.top.equalTo(newsContentView)
+            make.bottom.equalTo(newsSubTitleLabel.snp.top).offset(CGFloat(adValue: -6))
             make.width.equalTo(newsContentView)
-            make.height.equalTo(CGFloat(adValue: 14))
         }
         // 资讯副标题
-        newsSubTitleView.snp.makeConstraints { (make) in
-            make.left.equalTo(newsTitleView)
-            make.top.equalTo(newsTitleView.snp.bottom).offset(CGFloat(adValue: 6))
+        newsSubTitleLabel.snp.makeConstraints { (make) in
+            make.left.equalTo(newsContentView)
+            make.bottom.equalTo(newsContentView)
             make.width.equalTo(newsContentView)
             make.height.equalTo(CGFloat(adValue: 12))
         }
@@ -126,15 +125,7 @@ class JJNewsContentView: UIView {
             newsImageView.sd_setImage(with: URL(string: newsModel.imageLink))
         }
         // 资讯标题
-        var newsTitleViewText = newsModel.title
-        let maxTextLength = (newsModel.isPure == true ? 40 : 30) - 3
-        if newsTitleViewText.characters.count > maxTextLength {
-            let index = newsTitleViewText.index(newsTitleViewText.startIndex, offsetBy: maxTextLength)
-            newsTitleViewText = newsTitleViewText.substring(to: index)
-            newsTitleViewText += "..."
-        }
-        newsTitleView.frame = CGRect(x: newsTitleView.left, y: newsTitleView.top, width: newsContentView.width, height: fetchHeightForMultipleLinesText(newsTitleViewText, width: newsContentView.width, font: UIFont.systemFont(ofSize: CGFloat(adValue: 14)), lineSpacing: 4))
-        newsTitleView.text = newsTitleViewText
+        newsTitleLabel.text =  newsModel.title
         // 资讯标题已读状态颜色
         var titleTextColor = UIColor(valueRGB: 0x333333, alpha: 1)
         let readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) as? [String : Bool]
@@ -145,11 +136,9 @@ class JJNewsContentView: UIView {
                 titleTextColor = UIColor(valueRGB: 0x999999, alpha: 1)
             }
         }
-        newsTitleView.textColor = titleTextColor
+        newsTitleLabel.textColor = titleTextColor
         // 资讯副标题
-        newsSubTitleView.frame = CGRect(x: 0, y: newsTitleView.bottom + CGFloat(adValue:6), width: newsContentView.width, height: CGFloat(adValue:12))
-        let subTitleViewText = newsModel.authorName
-        newsSubTitleView.text = subTitleViewText
+        newsSubTitleLabel.text = newsModel.authorName
     }
 }
 
