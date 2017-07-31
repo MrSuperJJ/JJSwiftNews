@@ -12,44 +12,34 @@ import SwiftyJSON
 struct JJNewsModel: JJNewsModelType {
 
     var title: String {
-        return newsTitle
+        return newsJSON["title"].stringValue
     }
 
     var imageLink: String {
-        return newsImageLink
+        return newsJSON["thumbnail_pic_s"].stringValue
     }
 
     var isPure: Bool {
-        return isNewsPure
+//        return newsJSON["ispure"].boolValue
+        /// 随机数控制是否是纯文本资讯
+        return Int.random(0...10) % 2 == 0 ? true : false
     }
 
     var uniquekey: String {
-        return newsUniquekey
+        return newsJSON["uniquekey"].stringValue
     }
 
     var authorName: String {
-        return newsAuthorName
+        return newsJSON["author_name"].stringValue
     }
 
     var url: String {
-        return newsURL
+        return newsJSON["url"].stringValue
     }
 
-    private let newsTitle: String
-    private let newsImageLink: String
-    private let isNewsPure: Bool
-    private let newsUniquekey: String
-    private let newsAuthorName: String
-    private let newsURL: String
+    private let newsJSON: JSON
 
     init(_ newsJSON: JSON) {
-        newsTitle = newsJSON["title"].stringValue
-        newsImageLink = newsJSON["thumbnail_pic_s"].stringValue
-//        isNewsPure = newsJSON["ispure"].boolValue
-        /// 随机数控制是否是纯文本资讯
-        isNewsPure = Int.random(0...10) % 2 == 0 ? true : false
-        newsUniquekey = newsJSON["uniquekey"].stringValue
-        newsAuthorName = newsJSON["author_name"].stringValue
-        newsURL = newsJSON["url"].stringValue
+        self.newsJSON = newsJSON
     }
 }
