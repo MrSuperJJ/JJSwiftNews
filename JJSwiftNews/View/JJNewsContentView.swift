@@ -8,23 +8,24 @@
 
 import UIKit
 import SwiftyJSON
+import SnapKit
 
 class JJNewsContentView: UIView {
     
     // MARK: - Properties
-    ///<资讯图片视图
+    /// 资讯图片视图
     private lazy var newsImageView: UIImageView = {
         let newsImageView = UIImageView()
         newsImageView.backgroundColor = UIColor.gray
         return newsImageView
     }()
-    ///<资讯文本内容视图
+    /// 资讯文本内容视图
     private lazy var newsContentView: UIView = {
         let newsContentView = UIView()
         newsContentView.backgroundColor = UIColor.clear
         return newsContentView
     }()
-    ///<资讯标题视图
+    /// 资讯标题视图
     private lazy var newsTitleView: UILabel = {
         let newsTitleView = UILabel()
         newsTitleView.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
@@ -32,7 +33,7 @@ class JJNewsContentView: UIView {
         newsTitleView.lineBreakMode = .byCharWrapping
         return newsTitleView
     }()
-    ///<资讯副标题视图
+    /// 资讯副标题视图
     private lazy var newsSubTitleView: UILabel = {
         let newsSubTitleView = UILabel()
         newsSubTitleView.textColor = UIColor(valueRGB: 0x999999, alpha: 1)
@@ -41,7 +42,12 @@ class JJNewsContentView: UIView {
         newsSubTitleView.lineBreakMode = .byCharWrapping
         return newsSubTitleView
     }()
-    
+    /// 分割线
+    private lazy var bottomLine: UIView = {
+        let bottomLine = UIView()
+        bottomLine.backgroundColor = UIColor(valueRGB: 0xdcdcdc, alpha: 1)
+        return bottomLine
+    }()
     // MARK: - Life Cycle
     internal init(frame: CGRect, isPure: Bool) {
         super.init(frame: frame)
@@ -61,26 +67,55 @@ class JJNewsContentView: UIView {
     internal func setupViewFrame(isPure: Bool) {
         let subViewTop: CGFloat = 8
         let subViewHeight: CGFloat = 60
+        
+        self.addSubview(newsContentView)
+        newsContentView.addSubview(newsTitleView)
+        newsContentView.addSubview(newsSubTitleView)
+        self.addSubview(bottomLine)
         // 资讯图片和内容
         if isPure { // 纯文本界面
-            newsContentView.frame = CGRect(x: CGFloat(adValue:10), y: CGFloat(adValue:subViewTop), width: ScreenWidth - CGFloat(adValue:10) - CGFloat(adValue:10), height: CGFloat(adValue:subViewHeight))
+            newsContentView.snp.makeConstraints { (make) in
+                make.left.equalTo(self).offset(CGFloat(adValue:10))
+                make.top.equalTo(self).offset(CGFloat(adValue: subViewTop))
+                make.right.equalTo(self).offset(CGFloat(adValue:-10))
+                make.height.equalTo(CGFloat(adValue:subViewHeight))
+            }
         } else {    // 图文界面
-            newsImageView.frame = CGRect(adX: 10, adY: subViewTop, adWidth: 76.5, adHeight: subViewHeight)
             self.addSubview(newsImageView)
+            newsImageView.snp.makeConstraints({ (make) in
+                make.left.equalTo(self).offset(CGFloat(adValue: 10))
+                make.top.equalTo(self).offset(CGFloat(adValue: subViewTop))
+                make.width.equalTo(CGFloat(adValue: 76.5))
+                make.height.equalTo(CGFloat(adValue: 60))
+            })
 
-            newsContentView.frame = CGRect(x: newsImageView.right + CGFloat(adValue:8), y: newsImageView.top, width: ScreenWidth - newsImageView.right - CGFloat(adValue:8) - CGFloat(adValue:10), height: CGFloat(adValue:subViewHeight))
+            newsContentView.snp.makeConstraints { (make) in
+                make.left.equalTo(newsImageView.snp.right).offset(CGFloat(adValue:8))
+                make.top.equalTo(newsImageView)
+                make.right.equalTo(self).offset(CGFloat(adValue:-10))
+                make.height.equalTo(CGFloat(adValue:subViewHeight))
+            }
         }
-        self.addSubview(newsContentView)
         // 资讯标题
-        newsTitleView.frame = CGRect(x: 0, y: 0, width: newsContentView.width, height: CGFloat(adValue:14))
-        newsContentView.addSubview(newsTitleView)
+        newsTitleView.snp.makeConstraints { (make) in
+            make.left.equalTo(newsContentView)
+            make.top.equalTo(newsContentView)
+            make.width.equalTo(newsContentView)
+            make.height.equalTo(CGFloat(adValue: 14))
+        }
         // 资讯副标题
-        newsSubTitleView.frame = CGRect(x: 0, y: newsTitleView.bottom + CGFloat(adValue:6), width: newsContentView.width, height: CGFloat(adValue:12))
-        newsContentView.addSubview(newsSubTitleView)
+        newsSubTitleView.snp.makeConstraints { (make) in
+            make.left.equalTo(newsTitleView)
+            make.top.equalTo(newsTitleView.snp.bottom).offset(CGFloat(adValue: 6))
+            make.width.equalTo(newsContentView)
+            make.height.equalTo(CGFloat(adValue: 12))
+        }
         // 分割线
-        let bottomLine = UIView(frame: CGRect(x: 0, y: self.height - 0.5, width: ScreenWidth, height: 0.5))
-        bottomLine.backgroundColor = UIColor(valueRGB: 0xdcdcdc, alpha: 1)
-        self.addSubview(bottomLine)
+        bottomLine.snp.makeConstraints { (make) in
+            make.bottom.equalTo(self).offset(-0.5)
+            make.width.equalTo(self)
+            make.height.equalTo(0.5)
+        }
     }
 
     // MARK: - 更新页面数据
