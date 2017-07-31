@@ -13,7 +13,11 @@ class JJNewsContentView: UIView {
     
     // MARK: - Properties
     ///<资讯图片视图
-    private var newsImageView: UIImageView!
+    private lazy var newsImageView: UIImageView = {
+        let newsImageView = UIImageView()
+        newsImageView.backgroundColor = UIColor.gray
+        return newsImageView
+    }()
     ///<资讯文本内容视图
     private lazy var newsContentView: UIView = {
         let newsContentView = UIView()
@@ -61,7 +65,7 @@ class JJNewsContentView: UIView {
         if isPure { // 纯文本界面
             newsContentView.frame = CGRect(x: CGFloat(adValue:10), y: CGFloat(adValue:subViewTop), width: ScreenWidth - CGFloat(adValue:10) - CGFloat(adValue:10), height: CGFloat(adValue:subViewHeight))
         } else {    // 图文界面
-            newsImageView = UIImageView(frame: CGRect(adX: 10, adY: subViewTop, adWidth: 76.5, adHeight: subViewHeight))
+            newsImageView.frame = CGRect(adX: 10, adY: subViewTop, adWidth: 76.5, adHeight: subViewHeight)
             self.addSubview(newsImageView)
 
             newsContentView.frame = CGRect(x: newsImageView.right + CGFloat(adValue:8), y: newsImageView.top, width: ScreenWidth - newsImageView.right - CGFloat(adValue:8) - CGFloat(adValue:10), height: CGFloat(adValue:subViewHeight))
@@ -83,13 +87,12 @@ class JJNewsContentView: UIView {
     internal func updateView(newsModel: JJNewsModelType) {
         guard let newsModel = newsModel as? JJNewsModel else { return }
         // 资讯图片
-        if newsImageView != nil {
-            newsImageView.backgroundColor = UIColor.gray
+        if !newsModel.isPure {
             newsImageView.sd_setImage(with: URL(string: newsModel.imageLink))
         }
         // 资讯标题
         var newsTitleViewText = newsModel.title
-        let maxTextLength = newsModel.isPure == true ? 40 : 30
+        let maxTextLength = (newsModel.isPure == true ? 40 : 30) - 3
         if newsTitleViewText.characters.count > maxTextLength {
             let index = newsTitleViewText.index(newsTitleViewText.startIndex, offsetBy: maxTextLength)
             newsTitleViewText = newsTitleViewText.substring(to: index)
