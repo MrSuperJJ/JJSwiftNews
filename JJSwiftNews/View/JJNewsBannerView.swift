@@ -15,7 +15,7 @@ class JJNewsBannerView: JJBannerView {
     
     // MARK:- 设置PageController的Frame
     override func setupBannerPageControllerFrame(bannerScrollView: UIScrollView, bannerPageController: UIPageControl, bannerViewCount: Int) {
-        bannerPageController.snp.makeConstraints { (make) in
+        bannerPageController.snp.remakeConstraints { (make) in
             make.left.equalTo(bannerScrollView.snp.right).offset(-bannerPageControllerWidth)
             make.top.equalTo(bannerScrollView.snp.bottom).offset(-CGFloat(adValue: 22))
             make.width.equalTo(bannerPageControllerWidth)

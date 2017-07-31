@@ -20,7 +20,7 @@ class NewsMainViewController: UIViewController {
     fileprivate var topicScrollView: JJTopicScrollView?
     fileprivate var bodyScrollView: JJContentScrollView?
     
-    var newsTopicArray = [["topic": "头条", "type": "top"],
+    fileprivate var newsTopicArray = [["topic": "头条", "type": "top"],
                           ["topic": "社会", "type": "shehui"],
                           ["topic": "国内", "type": "guonei"],
                           ["topic": "国际", "type": "guoji"],
@@ -31,11 +31,10 @@ class NewsMainViewController: UIViewController {
                           ["topic": "财经", "type": "caijing"],
                           ["topic": "时尚", "type": "shishang"]]
     
-    var bannerModelArray = Array<JJBannerModel>()
-    var newsModelArray   = Array<JJNewsModel>()
-    let bannerModelCount = 1                 ///<Banner数量(只针对本demo有效)
-    var lastNewsUniqueKey = ""               // 最后一条资讯的uniquekey
-    
+    fileprivate var bannerModelArray = Array<JJBannerModel>()
+    fileprivate var newsModelArray   = Array<JJNewsModel>()
+    fileprivate var lastNewsUniqueKey = ""               // 最后一条资讯的uniquekey
+
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,11 +60,14 @@ class NewsMainViewController: UIViewController {
                 }
             }
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive(ntf:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
     }
     
     deinit {
         topicScrollView = nil
         bodyScrollView = nil
+        NotificationCenter.default.removeObserver(self)
     }
 
     override func didReceiveMemoryWarning() {
@@ -104,6 +106,7 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     }
     
     internal func didTableViewStartRefreshing(index: Int) {
+        let bannerModelCount = Int.random(1...4) ///<Banner数量
         currTopicType = self.newsTopicArray[index]["type"]!
         JJNewsAlamofireUtil.requestData(type: currTopicType) { [unowned self] (contentJSON, error) in
             if let contentScrollView = self.bodyScrollView {
@@ -112,7 +115,7 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
                     self.newsModelArray.removeAll()
                     self.lastNewsUniqueKey = ""
                     _ = contentJSON.split(whereSeparator: {(index, subJSON) -> Bool in
-                        Int(index)! < self.bannerModelCount ? self.bannerModelArray.append(JJBannerModel(subJSON)) : self.newsModelArray.append(JJNewsModel(subJSON))
+                        Int(index)! < bannerModelCount ? self.bannerModelArray.append(JJBannerModel(subJSON)) : self.newsModelArray.append(JJNewsModel(subJSON))
                         if index == String(contentJSON.count - 1) {
                             self.lastNewsUniqueKey = subJSON["uniquekey"].stringValue
                         }
@@ -193,6 +196,14 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
         if !isBanner, let contentScrollView = self.bodyScrollView {
             contentScrollView.refreshTabaleCellReadedState(index: index, isBanner: false)
         }
+    }
+}
+
+// MARK: - 从后台进入前台，更新数据
+extension NewsMainViewController {
+    
+    @objc fileprivate func applicationDidBecomeActive(ntf: Notification) {
+        
     }
 }
 

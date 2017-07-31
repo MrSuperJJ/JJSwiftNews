@@ -36,6 +36,7 @@ class JJBannerView: UIView {
     
     fileprivate lazy var bannerPageController: UIPageControl = {
         let pageController = UIPageControl()
+        pageController.hidesForSinglePage = true
         return pageController
     }()
     
@@ -51,6 +52,7 @@ class JJBannerView: UIView {
         self.backgroundColor = UIColor.white
 
         self.addSubview(bannerScrollView)
+        self.addSubview(bannerPageController)
         bannerScrollView.frame = self.frame
     }
 
@@ -67,21 +69,20 @@ class JJBannerView: UIView {
     final internal func setupScrollViewContents<T: JJBannerModelType>(bannerModelArray: Array<T>) {
         guard bannerModelArray.count > 0 else { return }
         self.bannerViewCount = bannerModelArray.count
+        bannerPageControllerWidth = CGFloat(20 * bannerViewCount)
+        bannerPageController.numberOfPages = bannerViewCount
         bannerScrollView.removeAllSubviews()
 
         if bannerViewCount == 1 {
+            bannerScrollView.contentSize = CGSize(width: self.width, height: 0)
             let index = 0
             let bannerView = fetchBannerView(index: index)
             bannerScrollView.addSubview(bannerView)
             setupBannerViewContents(bannerView: bannerView, bannerModel: bannerModelArray[0])
         } else {
-            bannerScrollView.contentSize = CGSize(width: CGFloat(bannerViewCount + 2) * ScreenWidth, height: 0)
-            bannerScrollView.setContentOffset(CGPoint(x: ScreenWidth, y: 0), animated: false)
-
-            self.addSubview(bannerPageController)
-            bannerPageControllerWidth = CGFloat(20 * bannerViewCount)
+            bannerScrollView.contentSize = CGSize(width: CGFloat(bannerViewCount + 2) * self.width, height: 0)
+            bannerScrollView.contentOffset = CGPoint(x: self.width, y: 0)
             setupBannerPageControllerFrame(bannerScrollView: bannerScrollView, bannerPageController: bannerPageController, bannerViewCount: bannerViewCount)
-            bannerPageController.numberOfPages = bannerViewCount
 
             for index in 0 ..< bannerViewCount + 2 {
                 let bannerView = fetchBannerView(index: index)
@@ -136,14 +137,15 @@ class JJBannerView: UIView {
 extension JJBannerView: UIScrollViewDelegate {
     
     internal func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.contentOffset.x >= CGFloat(bannerViewCount + 1) * ScreenWidth {
+        if bannerViewCount == 1 { return }
+        if scrollView.contentOffset.x >= CGFloat(bannerViewCount + 1) * self.width {
             // 右滑超过最后页
-            bannerScrollView.contentOffset = CGPoint(x: ScreenWidth, y: 0)
+            bannerScrollView.contentOffset = CGPoint(x: self.width, y: 0)
         } else if scrollView.contentOffset.x <= 0 {
             // 左划超过第一页
-            bannerScrollView.contentOffset = CGPoint(x: CGFloat(bannerViewCount) * ScreenWidth, y: 0)
+            bannerScrollView.contentOffset = CGPoint(x: CGFloat(bannerViewCount) * self.width, y: 0)
         }
-        currentBannerIndex = Int(bannerScrollView.contentOffset.x / ScreenWidth);
+        currentBannerIndex = Int(bannerScrollView.contentOffset.x / self.width);
         bannerPageController.currentPage = currentBannerIndex - 1
     }
     
@@ -174,8 +176,8 @@ extension JJBannerView: UIScrollViewDelegate {
     // 滚动到下一页面
     @objc private func scrollToNextPage() {
         currentBannerIndex += 1;
-        bannerScrollView.setContentOffset(CGPoint(x: CGFloat(currentBannerIndex) * ScreenWidth, y: 0), animated: true)
-//        print(bannerScrollView)
+        bannerScrollView.setContentOffset(CGPoint(x: CGFloat(currentBannerIndex) * self.width, y: 0), animated: true)
+//        print(bannerScrollView.contentOffset)
     }
 }
 

@@ -142,3 +142,25 @@ public func fetchHeightForMultipleLinesText(_ text: String, width: CGFloat, font
     let attributedSize = attributedText.boundingRect(with: CGSize(width: width, height: 900), options: .usesLineFragmentOrigin, context:nil).size
     return attributedSize.height
 }
+
+// MARK: - 生成随机整数
+public extension Int {
+    
+    /// 生成Int型随机数
+    ///
+    /// - Parameters:
+    ///   - lower: min
+    ///   - upper: max
+    /// - Returns: 随机数
+    public static func random(_ lower: Int = 0, _ upper: Int = Int.max) -> Int {
+        return lower + Int(arc4random_uniform(UInt32(upper - lower + 1)))
+    }
+    
+    /// 生成Int型随机数
+    ///
+    /// - Parameter range: [min, max]
+    /// - Returns: 随机数
+    public static func random(_ range: CountableClosedRange<Int>) -> Int {
+        return random(range.lowerBound, range.upperBound)
+    }
+}
