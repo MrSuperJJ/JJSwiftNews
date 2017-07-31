@@ -45,7 +45,9 @@ struct JJNewsModel: JJNewsModelType {
     init(_ newsJSON: JSON) {
         newsTitle = newsJSON["title"].stringValue
         newsImageLink = newsJSON["thumbnail_pic_s"].stringValue
-        isNewsPure = newsJSON["ispure"].boolValue
+//        isNewsPure = newsJSON["ispure"].boolValue
+        /// 随机数控制是否是纯文本资讯
+        isNewsPure = (Int(arc4random_uniform(100)) + 1) % 2 == 0 ? true : false
         newsUniquekey = newsJSON["uniquekey"].stringValue
         newsAuthorName = newsJSON["author_name"].stringValue
         newsURL = newsJSON["url"].stringValue

@@ -8,4 +8,5 @@ pod 'SwiftyJSON'
 pod 'SDWebImage'
 pod 'MJRefresh'
 pod 'MBProgressHUD'
+pod 'SnapKit'
 end

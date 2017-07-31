@@ -12,10 +12,31 @@ import SwiftyJSON
 class JJNewsContentView: UIView {
     
     // MARK: - Properties
-    private var newsImageView: UIImageView!     ///<资讯图片视图
-    private var newsContentView: UIView!        ///<资讯文本内容视图
-    private var newsTitleView: UILabel!         ///<资讯标题视图
-    private var newsSubTitleView: UILabel!      ///<资讯副标题视图
+    ///<资讯图片视图
+    private var newsImageView: UIImageView!
+    ///<资讯文本内容视图
+    private lazy var newsContentView: UIView = {
+        let newsContentView = UIView()
+        newsContentView.backgroundColor = UIColor.clear
+        return newsContentView
+    }()
+    ///<资讯标题视图
+    private lazy var newsTitleView: UILabel = {
+        let newsTitleView = UILabel()
+        newsTitleView.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
+        newsTitleView.numberOfLines = 0
+        newsTitleView.lineBreakMode = .byCharWrapping
+        return newsTitleView
+    }()
+    ///<资讯副标题视图
+    private lazy var newsSubTitleView: UILabel = {
+        let newsSubTitleView = UILabel()
+        newsSubTitleView.textColor = UIColor(valueRGB: 0x999999, alpha: 1)
+        newsSubTitleView.font = UIFont.systemFont(ofSize: CGFloat(adValue: 12))
+        newsSubTitleView.numberOfLines = 0
+        newsSubTitleView.lineBreakMode = .byCharWrapping
+        return newsSubTitleView
+    }()
     
     // MARK: - Life Cycle
     internal init(frame: CGRect, isPure: Bool) {
@@ -38,27 +59,19 @@ class JJNewsContentView: UIView {
         let subViewHeight: CGFloat = 60
         // 资讯图片和内容
         if isPure { // 纯文本界面
-            newsContentView = UIView(frame: CGRect(x: CGFloat(adValue:10), y: CGFloat(adValue:subViewTop), width: ScreenWidth - CGFloat(adValue:10) - CGFloat(adValue:10), height: CGFloat(adValue:subViewHeight)))
+            newsContentView.frame = CGRect(x: CGFloat(adValue:10), y: CGFloat(adValue:subViewTop), width: ScreenWidth - CGFloat(adValue:10) - CGFloat(adValue:10), height: CGFloat(adValue:subViewHeight))
         } else {    // 图文界面
             newsImageView = UIImageView(frame: CGRect(adX: 10, adY: subViewTop, adWidth: 76.5, adHeight: subViewHeight))
             self.addSubview(newsImageView)
 
-            newsContentView = UIView(frame: CGRect(x: newsImageView.right + CGFloat(adValue:8), y: newsImageView.top, width: ScreenWidth - newsImageView.right - CGFloat(adValue:8) - CGFloat(adValue:10), height: CGFloat(adValue:subViewHeight)))
+            newsContentView.frame = CGRect(x: newsImageView.right + CGFloat(adValue:8), y: newsImageView.top, width: ScreenWidth - newsImageView.right - CGFloat(adValue:8) - CGFloat(adValue:10), height: CGFloat(adValue:subViewHeight))
         }
-        newsContentView.backgroundColor = UIColor.clear
         self.addSubview(newsContentView)
         // 资讯标题
-        newsTitleView = UILabel(frame: CGRect(x: 0, y: 0, width: newsContentView.width, height: CGFloat(adValue:14)))
-        newsTitleView.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
-        newsTitleView.numberOfLines = 0
-        newsTitleView.lineBreakMode = .byCharWrapping
+        newsTitleView.frame = CGRect(x: 0, y: 0, width: newsContentView.width, height: CGFloat(adValue:14))
         newsContentView.addSubview(newsTitleView)
         // 资讯副标题
-        newsSubTitleView = UILabel(frame: CGRect(x: 0, y: newsTitleView.bottom + CGFloat(adValue:6), width: newsContentView.width, height: CGFloat(adValue:12)))
-        newsSubTitleView.textColor = UIColor(valueRGB: 0x999999, alpha: 1)
-        newsSubTitleView.font = UIFont.systemFont(ofSize: CGFloat(adValue: 12))
-        newsSubTitleView.numberOfLines = 0
-        newsSubTitleView.lineBreakMode = .byCharWrapping
+        newsSubTitleView.frame = CGRect(x: 0, y: newsTitleView.bottom + CGFloat(adValue:6), width: newsContentView.width, height: CGFloat(adValue:12))
         newsContentView.addSubview(newsSubTitleView)
         // 分割线
         let bottomLine = UIView(frame: CGRect(x: 0, y: self.height - 0.5, width: ScreenWidth, height: 0.5))
