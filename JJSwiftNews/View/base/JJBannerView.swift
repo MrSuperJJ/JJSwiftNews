@@ -42,6 +42,8 @@ class JJBannerView: UIView {
     fileprivate var bannerViewCount = 0                  ///<Banner视图数量
     fileprivate var currentBannerIndex = 0               ///<当前Banner位置
     fileprivate var bannerScrollTimer: Timer?            ///<Banner滚动定时器
+    internal var bannerPageControllerWidth: CGFloat = 0  ///<PageController宽度
+
     
     // MARK: - Life Cycle
     internal override init(frame: CGRect) {
@@ -49,8 +51,6 @@ class JJBannerView: UIView {
         self.backgroundColor = UIColor.white
 
         self.addSubview(bannerScrollView)
-        self.addSubview(bannerPageController)
-
         bannerScrollView.frame = self.frame
     }
 
@@ -73,11 +73,13 @@ class JJBannerView: UIView {
             let index = 0
             let bannerView = fetchBannerView(index: index)
             bannerScrollView.addSubview(bannerView)
-            setupBannerViewContents(bannerView: bannerView, bannerPageController: bannerPageController, bannerModel: bannerModelArray[0])
+            setupBannerViewContents(bannerView: bannerView, bannerModel: bannerModelArray[0])
         } else {
             bannerScrollView.contentSize = CGSize(width: CGFloat(bannerViewCount + 2) * ScreenWidth, height: 0)
             bannerScrollView.setContentOffset(CGPoint(x: ScreenWidth, y: 0), animated: false)
 
+            self.addSubview(bannerPageController)
+            bannerPageControllerWidth = CGFloat(20 * bannerViewCount)
             setupBannerPageControllerFrame(bannerScrollView: bannerScrollView, bannerPageController: bannerPageController, bannerViewCount: bannerViewCount)
             bannerPageController.numberOfPages = bannerViewCount
 
@@ -93,7 +95,7 @@ class JJBannerView: UIView {
                 default:
                     realIndex = index - 1
                 }
-                setupBannerViewContents(bannerView: bannerView, bannerPageController: bannerPageController, bannerModel: bannerModelArray[realIndex])
+                setupBannerViewContents(bannerView: bannerView, bannerModel: bannerModelArray[realIndex])
             }
         }
     }
@@ -124,9 +126,8 @@ class JJBannerView: UIView {
     ///
     /// - Parameters:
     ///   - bannerView: Banner内容的父视图
-    ///   - bannerPageController: Banner页面控制器
     ///   - bannerModel: 遵循JJBannerModelType的Model
-    internal func setupBannerViewContents<T: JJBannerModelType>(bannerView: UIView, bannerPageController: UIPageControl, bannerModel: T) {
+    internal func setupBannerViewContents<T: JJBannerModelType>(bannerView: UIView, bannerModel: T) {
     }
     
 }

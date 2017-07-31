@@ -12,6 +12,7 @@ import Alamofire
 import MBProgressHUD
 
 let kReadedNewsKey = "ReadedNewsDictKey"
+var currTopicType = ""                   // 当前选择的TopicType
 
 class NewsMainViewController: UIViewController {
 
@@ -32,8 +33,8 @@ class NewsMainViewController: UIViewController {
     
     var bannerModelArray = Array<JJBannerModel>()
     var newsModelArray   = Array<JJNewsModel>()
+    let bannerModelCount = 1                 ///<Banner数量(只针对本demo有效)
     var lastNewsUniqueKey = ""               // 最后一条资讯的uniquekey
-    var currTopicType = ""                   // 最近选择的TopicType
     
     // MARK: - Life Cycle
     override func viewDidLoad() {
@@ -73,38 +74,6 @@ class NewsMainViewController: UIViewController {
     }
     
     // MARK: - Functions
-    
-    // MARK: 请求数据
-    fileprivate func requestData(type: String, completionHandler: ((JSON?, JJError?) -> Void)?) {
-        guard NetworkReachabilityManager(host: "www.baidu.com")?.isReachable == true else {
-            if let completionHandler = completionHandler {
-                showPopView(message: "网络异常", showTime: 1)
-                completionHandler(nil, JJError.networkError)
-            }
-            return
-        }
-        let requestURL = "http://toutiao-ali.juheapi.com/toutiao/index"
-        let headers = ["Authorization": "APPCODE fd4e0a674e274e46ad3e26ab508ff21c", "type": type]
-        let method = HTTPMethod.get
-        let parameters = ["type": type]
-        
-        Alamofire.request(requestURL, method: method, parameters: parameters, headers: headers).response(completionHandler: { (response) in
-            let contentJSON = JSON(data: response.data!)["result"]
-            if let completionHandler = completionHandler {
-                // 检查数据一致性，用topic_id作为判断依据，防止多次快速请求
-                if let requestHeaders = response.request?.allHTTPHeaderFields {
-                    if let type = requestHeaders["type"] {
-                        if self.currTopicType != type {
-                            completionHandler(nil, JJError.dataInconsistentError)
-                            return
-                        }
-                    }
-                }
-                contentJSON["stat"].intValue == 1 ? completionHandler(contentJSON["data"], nil) : completionHandler(nil, JJError.requetFailedError(contentJSON["msg"].stringValue))
-            }
-        })
-    }
-
     func showPopView(message: String, showTime: TimeInterval) {
         let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
         hud.mode = .text
@@ -136,14 +105,14 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     
     internal func didTableViewStartRefreshing(index: Int) {
         currTopicType = self.newsTopicArray[index]["type"]!
-        self.requestData(type: currTopicType) { [unowned self] (contentJSON, error) in
+        JJNewsAlamofireUtil.requestData(type: currTopicType) { [unowned self] (contentJSON, error) in
             if let contentScrollView = self.bodyScrollView {
                 if let contentJSON = contentJSON {
                     self.bannerModelArray.removeAll()
                     self.newsModelArray.removeAll()
                     self.lastNewsUniqueKey = ""
                     _ = contentJSON.split(whereSeparator: {(index, subJSON) -> Bool in
-                        Int(index)! < 4 ? self.bannerModelArray.append(JJBannerModel(subJSON)) : self.newsModelArray.append(JJNewsModel(subJSON))
+                        Int(index)! < self.bannerModelCount ? self.bannerModelArray.append(JJBannerModel(subJSON)) : self.newsModelArray.append(JJNewsModel(subJSON))
                         if index == String(contentJSON.count - 1) {
                             self.lastNewsUniqueKey = subJSON["uniquekey"].stringValue
                         }
@@ -153,7 +122,13 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
                 } else {
                     if let error = error {
                         print(error.description)
-                        contentScrollView.showErrorRetryView(errorMessage: error.description)
+                        switch error {
+                        case .networkError:
+                            self.showPopView(message: "网络异常", showTime: 1)
+                            contentScrollView.showErrorRetryView(errorMessage: error.description)
+                        default:
+                            contentScrollView.showErrorRetryView(errorMessage: error.description)
+                        }
                     }
                 }
                 contentScrollView.stopPullToRefresh()
@@ -163,7 +138,7 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     
     internal func didTableViewStartLoadingMore(index: Int) {
         currTopicType = self.newsTopicArray[index]["type"]!
-        self.requestData(type: currTopicType) { (contentJSON, error) in
+        JJNewsAlamofireUtil.requestData(type: currTopicType) { (contentJSON, error) in
             if let contentScrollView = self.bodyScrollView {
                 if let contentJSON = contentJSON {
                     contentScrollView.stopLoadingMore()
@@ -179,6 +154,9 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
                     if let error = error {
                         print(error.description)
                         switch error {
+                        case .networkError:
+                            self.showPopView(message: "网络异常", showTime: 1)
+                            contentScrollView.stopLoadingMore()
                         case .noMoreDataError:
                             contentScrollView.stopLoadingMoreWithNoMoreData()
                         default:
@@ -214,33 +192,6 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
         UserDefaults.standard.synchronize()
         if !isBanner, let contentScrollView = self.bodyScrollView {
             contentScrollView.refreshTabaleCellReadedState(index: index, isBanner: false)
-        }
-    }
-}
-
-private enum JJError: Error {
-    case networkError
-    case dataInconsistentError
-    case jsonParsedError
-    case noMoreDataError(String)
-    case requetFailedError(String)
-
-    internal var description: String {
-        get {
-            switch self {
-            case .networkError:
-                return "网络似乎不给力"
-            case .dataInconsistentError:
-                return "数据不一致"
-            case .jsonParsedError:
-                return "JSON解析错误"
-            case .noMoreDataError(let msg):
-//                return "请求成功，返回错误:\(msg)"
-                return "数据异常"
-            case .requetFailedError(let msg):
-//                return "请求失败:\(msg)"
-                return "访问异常"
-            }
         }
     }
 }
