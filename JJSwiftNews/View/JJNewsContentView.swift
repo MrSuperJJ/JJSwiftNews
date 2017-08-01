@@ -30,7 +30,6 @@ class JJNewsContentView: UIView {
         let newsTitleLabel = UILabel()
         newsTitleLabel.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
         newsTitleLabel.numberOfLines = 0
-        newsTitleLabel.lineBreakMode = .byTruncatingTail
         return newsTitleLabel
     }()
     /// 资讯副标题视图
@@ -38,7 +37,6 @@ class JJNewsContentView: UIView {
         let newsSubTitleLabel = UILabel()
         newsSubTitleLabel.textColor = UIColor(valueRGB: 0x999999, alpha: 1)
         newsSubTitleLabel.font = UIFont.systemFont(ofSize: CGFloat(adValue: 12))
-        newsSubTitleLabel.lineBreakMode = .byCharWrapping
         return newsSubTitleLabel
     }()
     /// 分割线
@@ -125,7 +123,8 @@ class JJNewsContentView: UIView {
             newsImageView.sd_setImage(with: URL(string: newsModel.imageLink))
         }
         // 资讯标题
-        newsTitleLabel.text =  newsModel.title
+        let (_, attributedText) = heightAndTextForMultipleLinesText(newsModel.title, width: newsContentView.width, font: newsTitleLabel.font, lineSpacing: 5)
+        newsTitleLabel.attributedText = attributedText
         // 资讯标题已读状态颜色
         var titleTextColor = UIColor(valueRGB: 0x333333, alpha: 1)
         let readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) as? [String : Bool]

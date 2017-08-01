@@ -21,8 +21,7 @@ struct JJNewsModel: JJNewsModelType {
 
     var isPure: Bool {
 //        return newsJSON["ispure"].boolValue
-        /// 随机数控制是否是纯文本资讯
-        return Int.random(0...10) % 2 == 0 ? true : false
+        return isPureNews
     }
 
     var uniquekey: String {
@@ -38,8 +37,11 @@ struct JJNewsModel: JJNewsModelType {
     }
 
     private let newsJSON: JSON
+    private let isPureNews: Bool
 
     init(_ newsJSON: JSON) {
         self.newsJSON = newsJSON
+        /// 随机数控制是否是纯文本资讯
+        isPureNews = Int.random(0...10) % 2 == 0 ? true : false
     }
 }
