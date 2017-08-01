@@ -203,7 +203,9 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
 extension NewsMainViewController {
     
     @objc fileprivate func applicationDidBecomeActive(ntf: Notification) {
-        
+//        if let contentScrollView = bodyScrollView {
+//            contentScrollView.startPullToRefresh()
+//        }
     }
 }
 
