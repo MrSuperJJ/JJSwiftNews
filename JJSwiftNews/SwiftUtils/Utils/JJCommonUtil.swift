@@ -83,8 +83,8 @@ public extension UIView {
     
     //MARK: 移除所有子视图
     internal func removeAllSubviews() {
-        for item in self.subviews {
-            item.removeFromSuperview()
+        self.subviews.forEach { (subview) in
+            subview.removeFromSuperview()
         }
     }
     
