@@ -83,7 +83,7 @@ class JJWebViewController: UIViewController {
         if keyPath == "estimatedProgress" {
             wbProgressView.isHidden = wkWebview.estimatedProgress == 1
             wbProgressView.setProgress(Float(wkWebview.estimatedProgress), animated: true)
-            print(wkWebview.estimatedProgress)
+//            print(wkWebview.estimatedProgress)
         }
     }
     

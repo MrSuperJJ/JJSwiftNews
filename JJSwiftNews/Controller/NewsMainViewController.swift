@@ -12,6 +12,7 @@ import Alamofire
 import MBProgressHUD
 
 let kReadedNewsKey = "ReadedNewsDictKey"
+var currTopicType = ""                   // 当前选择的TopicType
 
 class NewsMainViewController: UIViewController {
 
@@ -19,7 +20,7 @@ class NewsMainViewController: UIViewController {
     fileprivate var topicScrollView: JJTopicScrollView?
     fileprivate var bodyScrollView: JJContentScrollView?
     
-    var newsTopicArray = [["topic": "头条", "type": "top"],
+    fileprivate var newsTopicArray = [["topic": "头条", "type": "top"],
                           ["topic": "社会", "type": "shehui"],
                           ["topic": "国内", "type": "guonei"],
                           ["topic": "国际", "type": "guoji"],
@@ -30,11 +31,10 @@ class NewsMainViewController: UIViewController {
                           ["topic": "财经", "type": "caijing"],
                           ["topic": "时尚", "type": "shishang"]]
     
-    var topContentArray = ContentArray()
-    var norContentArray = ContentArray()
-    var lastNewsUniqueKey = ""               // 最后一条资讯的uniquekey
-    var currTopicType = ""                   // 最近选择的TopicType
-    
+    fileprivate var bannerModelArray = Array<JJBannerModel>()
+    fileprivate var newsModelArray   = Array<JJNewsModel>()
+    fileprivate var lastNewsUniqueKey = ""               // 最后一条资讯的uniquekey
+
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,11 +60,14 @@ class NewsMainViewController: UIViewController {
                 }
             }
         }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive(ntf:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
     }
     
     deinit {
         topicScrollView = nil
         bodyScrollView = nil
+        NotificationCenter.default.removeObserver(self)
     }
 
     override func didReceiveMemoryWarning() {
@@ -73,38 +76,6 @@ class NewsMainViewController: UIViewController {
     }
     
     // MARK: - Functions
-    
-    // MARK: 请求数据
-    fileprivate func requestData(type: String, completionHandler: ((JSON?, JJError?) -> Void)?) {
-        guard NetworkReachabilityManager(host: "www.baidu.com")?.isReachable == true else {
-            if let completionHandler = completionHandler {
-                showPopView(message: "网络异常", showTime: 1)
-                completionHandler(nil, JJError.networkError)
-            }
-            return
-        }
-        let requestURL = "http://toutiao-ali.juheapi.com/toutiao/index"
-        let headers = ["Authorization": "APPCODE fd4e0a674e274e46ad3e26ab508ff21c", "type": type]
-        let method = HTTPMethod.get
-        let parameters = ["type": type]
-        
-        Alamofire.request(requestURL, method: method, parameters: parameters, headers: headers).response(completionHandler: { (response) in
-            let contentJSON = JSON(data: response.data!)["result"]
-            if let completionHandler = completionHandler {
-                // 检查数据一致性，用topic_id作为判断依据，防止多次快速请求
-                if let requestHeaders = response.request?.allHTTPHeaderFields {
-                    if let type = requestHeaders["type"] {
-                        if self.currTopicType != type {
-                            completionHandler(nil, JJError.dataInconsistentError)
-                            return
-                        }
-                    }
-                }
-                contentJSON["stat"].intValue == 1 ? completionHandler(contentJSON["data"], nil) : completionHandler(nil, JJError.requetFailedError(contentJSON["msg"].stringValue))
-            }
-        })
-    }
-
     func showPopView(message: String, showTime: TimeInterval) {
         let hud = MBProgressHUD.showAdded(to: self.view, animated: true)
         hud.mode = .text
@@ -135,25 +106,32 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     }
     
     internal func didTableViewStartRefreshing(index: Int) {
+        let bannerModelCount = Int.random(1...4) ///<Banner数量
         currTopicType = self.newsTopicArray[index]["type"]!
-        self.requestData(type: currTopicType) { [unowned self] (contentJSON, error) in
+        JJNewsAlamofireUtil.requestData(type: currTopicType) { [unowned self] (contentJSON, error) in
             if let contentScrollView = self.bodyScrollView {
                 if let contentJSON = contentJSON {
-                    self.topContentArray.removeAll()
-                    self.norContentArray.removeAll()
+                    self.bannerModelArray.removeAll()
+                    self.newsModelArray.removeAll()
                     self.lastNewsUniqueKey = ""
                     _ = contentJSON.split(whereSeparator: {(index, subJSON) -> Bool in
-                        Int(index)! < 4 ? self.topContentArray.append(subJSON) : self.norContentArray.append(subJSON)
+                        Int(index)! < bannerModelCount ? self.bannerModelArray.append(JJBannerModel(subJSON)) : self.newsModelArray.append(JJNewsModel(subJSON))
                         if index == String(contentJSON.count - 1) {
                             self.lastNewsUniqueKey = subJSON["uniquekey"].stringValue
                         }
                         return true
                     })
-                    contentScrollView.refreshTableView(topContentArray: self.topContentArray, norContentArray: self.norContentArray, isPullToRefresh: true)
+                    contentScrollView.refreshTableView(bannerModelArray: self.bannerModelArray, newsModelArray: self.newsModelArray, isPullToRefresh: true)
                 } else {
                     if let error = error {
                         print(error.description)
-                        contentScrollView.showErrorRetryView(errorMessage: error.description)
+                        switch error {
+                        case .networkError:
+                            self.showPopView(message: "网络异常", showTime: 1)
+                            contentScrollView.showErrorRetryView(errorMessage: error.description)
+                        default:
+                            contentScrollView.showErrorRetryView(errorMessage: error.description)
+                        }
                     }
                 }
                 contentScrollView.stopPullToRefresh()
@@ -163,22 +141,25 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     
     internal func didTableViewStartLoadingMore(index: Int) {
         currTopicType = self.newsTopicArray[index]["type"]!
-        self.requestData(type: currTopicType) { (contentJSON, error) in
+        JJNewsAlamofireUtil.requestData(type: currTopicType) { (contentJSON, error) in
             if let contentScrollView = self.bodyScrollView {
                 if let contentJSON = contentJSON {
                     contentScrollView.stopLoadingMore()
                     _ = contentJSON.split(whereSeparator: {(index, subJSON) -> Bool in
-                        self.norContentArray.append(subJSON)
+                        self.newsModelArray.append(JJNewsModel(subJSON))
                         if index == String(contentJSON.count - 1) {
                             self.lastNewsUniqueKey = subJSON["uniquekey"].stringValue
                         }
                         return true
                     })
-                    contentScrollView.refreshTableView(topContentArray: self.topContentArray, norContentArray: self.norContentArray, isPullToRefresh: false)
+                    contentScrollView.refreshTableView(bannerModelArray: self.bannerModelArray, newsModelArray: self.newsModelArray, isPullToRefresh: false)
                 } else {
                     if let error = error {
                         print(error.description)
                         switch error {
+                        case .networkError:
+                            self.showPopView(message: "网络异常", showTime: 1)
+                            contentScrollView.stopLoadingMore()
                         case .noMoreDataError:
                             contentScrollView.stopLoadingMoreWithNoMoreData()
                         default:
@@ -191,9 +172,18 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     }
     
     internal func didTableViewCellSelected(index: Int, isBanner: Bool) {
-        let contentJSON = isBanner ? topContentArray[index] : norContentArray[index]
-        let uniqueKey = contentJSON["uniquekey"].stringValue
-        let requestURLPath = contentJSON["url"].stringValue
+        let currentModel: JJNewsModelType = isBanner ? bannerModelArray[index] : newsModelArray[index]
+        let uniqueKey: String
+        let requestURLPath: String
+        if let bannerModel = currentModel as? JJBannerModel {
+            uniqueKey = bannerModel.uniquekey
+            requestURLPath = bannerModel.url
+        } else if let newsModel = currentModel as? JJNewsModel {
+            uniqueKey = newsModel.uniquekey
+            requestURLPath = newsModel.url
+        } else {
+            return
+        }
         
         let newsDetailController = JJWebViewController()
         newsDetailController.requestURLPath = requestURLPath
@@ -209,30 +199,13 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     }
 }
 
-private enum JJError: Error {
-    case networkError
-    case dataInconsistentError
-    case jsonParsedError
-    case noMoreDataError(String)
-    case requetFailedError(String)
-
-    internal var description: String {
-        get {
-            switch self {
-            case .networkError:
-                return "网络似乎不给力"
-            case .dataInconsistentError:
-                return "数据不一致"
-            case .jsonParsedError:
-                return "JSON解析错误"
-            case .noMoreDataError(let msg):
-//                return "请求成功，返回错误:\(msg)"
-                return "数据异常"
-            case .requetFailedError(let msg):
-//                return "请求失败:\(msg)"
-                return "访问异常"
-            }
-        }
+// MARK: - 从后台进入前台，更新数据
+extension NewsMainViewController {
+    
+    @objc fileprivate func applicationDidBecomeActive(ntf: Notification) {
+//        if let contentScrollView = bodyScrollView {
+//            contentScrollView.startPullToRefresh()
+//        }
     }
 }
 

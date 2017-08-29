@@ -83,8 +83,8 @@ public extension UIView {
     
     //MARK: 移除所有子视图
     internal func removeAllSubviews() {
-        for item in self.subviews {
-            item.removeFromSuperview()
+        self.subviews.forEach { (subview) in
+            subview.removeFromSuperview()
         }
     }
     
@@ -126,7 +126,7 @@ public extension UIView {
     }
 }
 
-// MARK: - 获取多行文本情况下的高度
+// MARK: - 获取多行文本情况下的高度和文本内容
 ///
 /// - Parameters:
 ///   - text: 文本内容
@@ -134,11 +134,53 @@ public extension UIView {
 ///   - font: 文本大小
 ///   - lineSpacing: 文本行间隔
 /// - Returns: UIView高度
-public func fetchHeightForMultipleLinesText(_ text: String, width: CGFloat, font: UIFont, lineSpacing: CGFloat = 0) -> CGFloat {
+public func heightAndTextForMultipleLinesText(_ text: String, width: CGFloat, font: UIFont, lineSpacing: CGFloat = 0) -> (CGFloat, NSMutableAttributedString) {
+    
+    /// 获取带属性的文本
+    ///
+    /// - Parameters:
+    ///   - text: 文本内容
+    ///   - font: 文本大小
+    ///   - lineSpacing: 文本行间隔
+    /// - Returns: 带属性的文本
+    func fetchAttributedString(from text: String, font: UIFont, lineSpacing: CGFloat = 0) -> NSMutableAttributedString {
+        let attributedString = NSMutableAttributedString(string: text, attributes: [NSFontAttributeName: font])
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = lineSpacing
+        paragraphStyle.lineBreakMode = .byTruncatingTail
+        attributedString.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: NSMakeRange(0, attributedString.length))
+        return attributedString
+    }
+
     let attributedText = NSMutableAttributedString(string: text, attributes: [NSFontAttributeName: font])
     let paragraphStyle = NSMutableParagraphStyle()
     paragraphStyle.lineSpacing = lineSpacing
     attributedText.addAttribute(NSParagraphStyleAttributeName, value: paragraphStyle, range: NSMakeRange(0, attributedText.length))
-    let attributedSize = attributedText.boundingRect(with: CGSize(width: width, height: 900), options: .usesLineFragmentOrigin, context:nil).size
-    return attributedSize.height
+    let attributedSize = attributedText.boundingRect(with: CGSize(width: width, height: CGFloat.greatestFiniteMagnitude), options: .usesLineFragmentOrigin, context:nil).size
+    
+    let attributedString = fetchAttributedString(from: text, font: font, lineSpacing: lineSpacing)
+    
+    return (attributedSize.height, attributedString)
+}
+
+// MARK: - 生成随机整数
+public extension Int {
+    
+    /// 生成Int型随机数
+    ///
+    /// - Parameters:
+    ///   - lower: min
+    ///   - upper: max
+    /// - Returns: 随机数
+    public static func random(_ lower: Int = 0, _ upper: Int = Int.max) -> Int {
+        return lower + Int(arc4random_uniform(UInt32(upper - lower + 1)))
+    }
+    
+    /// 生成Int型随机数
+    ///
+    /// - Parameter range: [min, max]
+    /// - Returns: 随机数
+    public static func random(_ range: CountableClosedRange<Int>) -> Int {
+        return random(range.lowerBound, range.upperBound)
+    }
 }
