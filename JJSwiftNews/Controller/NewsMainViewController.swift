@@ -10,6 +10,10 @@ import UIKit
 import SwiftyJSON
 import Alamofire
 import MBProgressHUD
+// MMVM
+import RxSwift
+import RxCocoa
+var disposeBag = DisposeBag()
 
 let kReadedNewsKey = "ReadedNewsDictKey"
 var currTopicType = ""                   // 当前选择的TopicType
@@ -67,7 +71,13 @@ class NewsMainViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive(ntf:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         
         // MARK: MVVM
-        newsViewModel = NewsViewModel(newsService: NewsMoyaService.defaultService)
+        if let bodyScrollView = bodyScrollView {
+            let currentTopicType = bodyScrollView.tableViewIndex.map{ "\($0)" }
+            newsViewModel = NewsViewModel(input: currentTopicType, dependency: NewsMoyaService.defaultService)
+            newsViewModel.currentTopicTypeChanged.asObservable().subscribe(onNext: { (value) in
+                printLog(value)
+            }).disposed(by: disposeBag)
+        }
     }
     
     deinit {
@@ -143,8 +153,6 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
                 contentScrollView.stopPullToRefresh()
             }
         }
-        // MARK: MVVM
-        newsViewModel.requestNewsData(of: currTopicType)
     }
     
     internal func didTableViewStartLoadingMore(index: Int) {

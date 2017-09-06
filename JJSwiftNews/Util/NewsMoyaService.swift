@@ -11,8 +11,6 @@ import Moya
 import RxSwift
 import ObjectMapper
 
-var disposeBag = DisposeBag()
-
 struct NewsMoyaService: NewsService {
     
     static let defaultService = NewsMoyaService()
@@ -29,13 +27,13 @@ struct NewsMoyaService: NewsService {
         }
         provider = RxMoyaProvider<NewsRequestType>(endpointClosure: endpointClosure)
     }
-    
-    internal func requestNewsData(of newsType: String, completionHandler: @escaping ([NewsDataModel]?) -> Void) {
-        provider.request(.requestData(newsType: newsType)).debug().mapJSON(failsOnEmptyData: true).mapObject(type: NewsResponseData.self).subscribe(onNext: { (data) in
-            completionHandler(data.result.newsDataArray)
-        }).disposed(by: disposeBag)
+
+    func requestNewsData(of newsType: String) -> Observable<[NewsDataModel]> {
+        return provider.request(.requestData(newsType: newsType)).mapJSON(failsOnEmptyData: true).mapObject(type: NewsResponseData.self).map {
+            return $0.result!.newsDataArray!
+        }
     }
-    
+
 }
 
 // MARK: - Request Configuration of Moya

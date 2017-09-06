@@ -12,7 +12,7 @@ import ObjectMapper
 
 // MARK: - JSON -> Model
 extension Observable {
-    func mapObject<T: BaseMappable>(type: T.Type) -> Observable<T> {
+    func mapObject<T: BaseMappable>(type: T.Type) -> Observable<T>  {
         return self.map { response in
             guard let dict = response as? [String: Any] else {
                 throw RxSwiftMoyaError.JSONFormatError

@@ -47,7 +47,7 @@ struct NewsModel: NewsModelType {
     }
 }
 
-struct NewsDataModel: NewsModelType, ImmutableMappable {
+struct NewsDataModel: NewsModelType, Mappable {
 
     var title: String {
         return newsTitle
@@ -73,42 +73,48 @@ struct NewsDataModel: NewsModelType, ImmutableMappable {
         return newsUrl
     }
     
-    private let newsTitle: String
-    private let newsImageLink: String
-    private let newsIsPure: Bool
-    private let newsUniquekey: String
-    private let newsAuthorName: String
-    private let newsUrl: String
-    
-    init(map: Map) throws {
-        newsTitle = try map.value("title")
-        newsImageLink = try map.value("thumbnail_pic_s")
+    private var newsTitle: String!
+    private var newsImageLink: String!
+    private var newsIsPure: Bool!
+    private var newsUniquekey: String!
+    private var newsAuthorName: String!
+    private var newsUrl: String!
+
+    init?(map: Map) {
+    }
+
+    mutating func mapping(map: Map) {
+        newsTitle <- map["title"]
+        newsImageLink <- map["thumbnail_pic_s"]
         newsIsPure = Int.random(0...10) % 2 == 0 ? true : false
-        newsUniquekey = try map.value("uniquekey")
-        newsAuthorName = try map.value("author_name")
-        newsUrl = try map.value("url")
-    }
-
-}
-
-struct NewsDataResult: ImmutableMappable {
-    
-    let state: String
-    let newsDataArray: [NewsDataModel]
-    
-    init(map: Map) throws {
-        state = try map.value("stat")
-        newsDataArray = try map.value("data")
+        newsUniquekey <- map["uniquekey"]
+        newsAuthorName <- map["author_name"]
+        newsUrl <- map["url"]
     }
 }
 
-struct NewsResponseData: ImmutableMappable {
+struct NewsDataResult: Mappable {
     
-    let reason: String
-    let result: NewsDataResult
+    var state: String!
+    var newsDataArray: [NewsDataModel]!
+
+    init?(map: Map) { }
+
+    mutating func mapping(map: Map) {
+        state <- map["stat"]
+        newsDataArray <- map["data"]
+    }
+}
+
+struct NewsResponseData: Mappable {
     
-    init(map: Map) throws {
-        reason = try map.value("reason")
-        result = try map.value("result")
+    var reason: String!
+    var result: NewsDataResult!
+
+    init?(map: Map) { }
+
+    mutating func mapping(map: Map) {
+        reason <- map["reason"]
+        result <- map["result"]
     }
 }

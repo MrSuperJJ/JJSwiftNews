@@ -7,18 +7,18 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 struct NewsViewModel {
     
-    let newsService: NewsService
-    
-    init(newsService: NewsService) {
+    private let newsService: NewsService
+    let currentTopicTypeChanged: Observable<[NewsDataModel]>
+
+    init(input currentTopicType: Observable<String>, dependency newsService: NewsService) {
         self.newsService = newsService
-    }
-    
-    internal func requestNewsData(of type: String) {
-        newsService.requestNewsData(of: type) { (newsDataArray) in
-            printLog(newsDataArray)
+        currentTopicTypeChanged = currentTopicType.flatMapLatest { type in
+            return newsService.requestNewsData(of: type).observeOn(MainScheduler.instance)
         }
     }
 }

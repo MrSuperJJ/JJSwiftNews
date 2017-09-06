@@ -9,6 +9,9 @@
 import UIKit
 import SwiftyJSON
 import MJRefresh
+// MVVM
+import RxSwift
+import RxCocoa
 
 @objc(JJContentScrollViewDelegate)
 protocol JJContentScrollViewDelegate {
@@ -50,6 +53,9 @@ class JJContentScrollView: UIView {
     private var currContentViewTag: Int    // 当前选中的ContentView的Tag
 
     weak internal var delegate: JJContentScrollViewDelegate?
+
+    // MVVM
+    var tableViewIndex = PublishSubject<Int>()
     
     // MARK: - Life Cycle
     override init(frame: CGRect) {
@@ -58,7 +64,7 @@ class JJContentScrollView: UIView {
         super.init(frame: frame)
         self.backgroundColor = UIColor(valueRGB: 0xebebeb, alpha: 1)
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -193,6 +199,8 @@ class JJContentScrollView: UIView {
                 let index = Int(self.contentScrollView.contentOffset.x / self.width)
                 self.delegate?.didTableViewStartRefreshing(index: index)
                 contentView.mj_footer.resetNoMoreData()
+                // MVVM
+                self.tableViewIndex.onNext(index)
             })
 
             let refreshFooter = MJRefreshAutoNormalFooter(refreshingBlock: { [unowned self] in

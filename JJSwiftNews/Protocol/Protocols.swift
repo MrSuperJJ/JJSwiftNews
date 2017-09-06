@@ -7,6 +7,8 @@
 //
 
 import Foundation
+// MMVM
+import RxSwift
 
 /// Banner协议
 protocol BannerModelType { }
@@ -28,5 +30,5 @@ protocol NewsModelType {
 }
 
 protocol NewsService {
-    func requestNewsData(of newsType: String, completionHandler: @escaping ([NewsDataModel]?) -> Void)
+    func requestNewsData(of newsType: String) -> Observable<[NewsDataModel]>
 }
