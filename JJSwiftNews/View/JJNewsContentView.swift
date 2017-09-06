@@ -116,8 +116,8 @@ class JJNewsContentView: UIView {
     }
 
     // MARK: - 更新页面数据
-    internal func updateView(newsModel: JJNewsModelType) {
-        guard let newsModel = newsModel as? JJNewsModel else { return }
+    internal func updateView(newsModel: NewsModelType) {
+        guard let newsModel = newsModel as? NewsModel else { return }
         // 资讯图片
         if !newsModel.isPure {
             newsImageView.sd_setImage(with: URL(string: newsModel.imageLink))

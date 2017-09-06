@@ -42,8 +42,8 @@ class JJContentScrollView: UIView {
     fileprivate let norImageTextCellReuseIdentifier = "NorImageTextCellReuseIdentifier"      ///<普通Cell-图文
     fileprivate let topCellHeight = CGFloat(adValue: 162)
     fileprivate let norCellHeight = CGFloat(adValue: 76)
-    fileprivate var bannerModelArray = Array<JJBannerModel>()
-    fileprivate var newsModelArray   = Array<JJNewsModel>()
+    fileprivate var bannerModelArray = Array<BannerModel>()
+    fileprivate var newsModelArray   = Array<NewsModel>()
 
     fileprivate let contentViewTagIndex = 1000 // 初始ContentView的Tag偏移量
     private var lastContentViewTag: Int    // 上次选中的ContentView的Tag
@@ -135,7 +135,7 @@ class JJContentScrollView: UIView {
     }
 
     // 刷新TableView内容
-    public func refreshTableView(bannerModelArray: Array<JJBannerModel>, newsModelArray: Array<JJNewsModel>, isPullToRefresh: Bool) {
+    public func refreshTableView(bannerModelArray: Array<BannerModel>, newsModelArray: Array<NewsModel>, isPullToRefresh: Bool) {
         self.bannerModelArray = bannerModelArray
         self.newsModelArray = newsModelArray
         if let currentTableView = currentTableView {

@@ -9,11 +9,10 @@
 import Foundation
 
 /// Banner协议
-protocol JJBannerModelType {
-}
+protocol BannerModelType { }
 
 /// 资讯协议
-protocol JJNewsModelType {
+protocol NewsModelType {
     /// 资讯标题
     var title: String { get }
     /// 资讯图片连接
@@ -26,4 +25,8 @@ protocol JJNewsModelType {
     var authorName: String { get }
     /// 资讯连接
     var url: String { get }
+}
+
+protocol NewsService {
+    func requestNewsData(of newsType: String, completionHandler: @escaping ([NewsDataModel]?) -> Void)
 }

@@ -23,8 +23,8 @@ class JJNewsBannerView: JJBannerView {
         }
     }
 
-    override func setupBannerViewContents<T>(bannerView: UIView, bannerModel: T) where T : JJBannerModelType {
-        guard let bannerModel = bannerModel as? JJBannerModel else { return }
+    override func setupBannerViewContents<T>(bannerView: UIView, bannerModel: T) where T : BannerModelType {
+        guard let bannerModel = bannerModel as? BannerModel else { return }
         // Banner图片
         let bannerImageView = UIImageView()
         bannerImageView.sd_setImage(with: URL(string: bannerModel.imageLink))

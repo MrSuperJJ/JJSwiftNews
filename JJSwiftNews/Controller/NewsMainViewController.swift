@@ -31,9 +31,12 @@ class NewsMainViewController: UIViewController {
                           ["topic": "财经", "type": "caijing"],
                           ["topic": "时尚", "type": "shishang"]]
     
-    fileprivate var bannerModelArray = Array<JJBannerModel>()
-    fileprivate var newsModelArray   = Array<JJNewsModel>()
+    fileprivate var bannerModelArray = Array<BannerModel>()
+    fileprivate var newsModelArray   = Array<NewsModel>()
     fileprivate var lastNewsUniqueKey = ""               // 最后一条资讯的uniquekey
+    
+    // MARK: MVVM
+    fileprivate var newsViewModel: NewsViewModel!
 
     // MARK: - Life Cycle
     override func viewDidLoad() {
@@ -62,6 +65,9 @@ class NewsMainViewController: UIViewController {
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive(ntf:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+        
+        // MARK: MVVM
+        newsViewModel = NewsViewModel(newsService: NewsMoyaService.defaultService)
     }
     
     deinit {
@@ -115,7 +121,7 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
                     self.newsModelArray.removeAll()
                     self.lastNewsUniqueKey = ""
                     _ = contentJSON.split(whereSeparator: {(index, subJSON) -> Bool in
-                        Int(index)! < bannerModelCount ? self.bannerModelArray.append(JJBannerModel(subJSON)) : self.newsModelArray.append(JJNewsModel(subJSON))
+                        Int(index)! < bannerModelCount ? self.bannerModelArray.append(BannerModel(subJSON)) : self.newsModelArray.append(NewsModel(subJSON))
                         if index == String(contentJSON.count - 1) {
                             self.lastNewsUniqueKey = subJSON["uniquekey"].stringValue
                         }
@@ -137,6 +143,8 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
                 contentScrollView.stopPullToRefresh()
             }
         }
+        // MARK: MVVM
+        newsViewModel.requestNewsData(of: currTopicType)
     }
     
     internal func didTableViewStartLoadingMore(index: Int) {
@@ -146,7 +154,7 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
                 if let contentJSON = contentJSON {
                     contentScrollView.stopLoadingMore()
                     _ = contentJSON.split(whereSeparator: {(index, subJSON) -> Bool in
-                        self.newsModelArray.append(JJNewsModel(subJSON))
+                        self.newsModelArray.append(NewsModel(subJSON))
                         if index == String(contentJSON.count - 1) {
                             self.lastNewsUniqueKey = subJSON["uniquekey"].stringValue
                         }
@@ -172,13 +180,13 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     }
     
     internal func didTableViewCellSelected(index: Int, isBanner: Bool) {
-        let currentModel: JJNewsModelType = isBanner ? bannerModelArray[index] : newsModelArray[index]
+        let currentModel: NewsModelType = isBanner ? bannerModelArray[index] : newsModelArray[index]
         let uniqueKey: String
         let requestURLPath: String
-        if let bannerModel = currentModel as? JJBannerModel {
+        if let bannerModel = currentModel as? BannerModel {
             uniqueKey = bannerModel.uniquekey
             requestURLPath = bannerModel.url
-        } else if let newsModel = currentModel as? JJNewsModel {
+        } else if let newsModel = currentModel as? NewsModel {
             uniqueKey = newsModel.uniquekey
             requestURLPath = newsModel.url
         } else {

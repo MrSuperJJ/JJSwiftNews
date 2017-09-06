@@ -9,7 +9,7 @@
 import Foundation
 import SwiftyJSON
 
-struct JJBannerModel: JJNewsModelType, JJBannerModelType {
+struct BannerModel: NewsModelType, BannerModelType {
 
     var title: String {
         return newsJSON["title"].stringValue

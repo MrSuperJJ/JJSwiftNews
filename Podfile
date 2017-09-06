@@ -3,7 +3,7 @@ platform :ios, ‘8.0’
 use_frameworks!
 
 target 'JJSwiftNews' do
-pod 'Alamofire'
+pod 'Moya/RxSwift'
 pod 'SwiftyJSON'
 pod 'SDWebImage'
 pod 'MJRefresh'
@@ -11,4 +11,5 @@ pod 'MBProgressHUD'
 pod 'SnapKit’
 pod 'RxSwift'    
 pod 'RxCocoa'
+pod ‘ObjectMapper’
 end
