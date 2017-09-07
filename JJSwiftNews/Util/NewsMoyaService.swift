@@ -20,7 +20,7 @@ struct NewsMoyaService: NewsService {
     init() {
         // 解决URL地址中存在?时编码错误的问题
         let endpointClosure = { (target: NewsRequestType) -> Endpoint<NewsRequestType> in
-            print("baseURL:\(target.baseURL)\n path:\(target.path)")
+//            print("baseURL:\(target.baseURL)\n path:\(target.path)")
             let url = target.baseURL.absoluteString + target.path
             let endpoint = Endpoint<NewsRequestType>(url: url, sampleResponseClosure: { .networkResponse(200, target.sampleData) }, method: target.method, parameters: target.parameters, parameterEncoding: target.parameterEncoding, httpHeaderFields: target.headers)
             return endpoint.adding(newHTTPHeaderFields: [:])

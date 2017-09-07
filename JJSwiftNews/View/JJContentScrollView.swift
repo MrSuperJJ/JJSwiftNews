@@ -207,6 +207,8 @@ class JJContentScrollView: UIView {
                 // 通知代理对象请求数据
                 let index = Int(self.contentScrollView.contentOffset.x / self.width)
                 self.delegate?.didTableViewStartLoadingMore(index: index)
+                // MVVM
+                self.tableViewIndex.onNext(index)
             })!
             refreshFooter.setTitle("", for: .idle)
             contentView.mj_footer = refreshFooter

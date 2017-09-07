@@ -72,10 +72,12 @@ class NewsMainViewController: UIViewController {
         
         // MARK: MVVM
         if let bodyScrollView = bodyScrollView {
-            let currentTopicType = bodyScrollView.tableViewIndex.map{ "\($0)" }
+            let currentTopicType = bodyScrollView.tableViewIndex.map({ [unowned self] index in
+                return self.newsTopicArray[index]["type"]!
+            })
             newsViewModel = NewsViewModel(input: currentTopicType, dependency: NewsMoyaService.defaultService)
             newsViewModel.currentTopicTypeChanged.asObservable().subscribe(onNext: { (value) in
-                printLog(value)
+                printLog(value.count)
             }).disposed(by: disposeBag)
         }
     }
