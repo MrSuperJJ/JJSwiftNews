@@ -48,7 +48,7 @@ class JJContentScrollView: UIView {
 
     fileprivate let contentViewTagIndex = 1000 // 初始ContentView的Tag偏移量
     private var lastContentViewTag: Int    // 上次选中的ContentView的Tag
-    private var currContentViewTag: Int    // 当前选中的ContentView的Tag
+    fileprivate var currContentViewTag: Int    // 当前选中的ContentView的Tag
 
     weak internal var delegate: JJContentScrollViewDelegate?
     
@@ -74,6 +74,7 @@ class JJContentScrollView: UIView {
     // TableView切换
     public func switchToSelectedContentView(of index: Int) {
         contentScrollView.setContentOffset(CGPoint(x: CGFloat(index) * self.width, y:0), animated: false)
+        currContentViewTag = index + contentViewTagIndex
         startPullToRefresh()
     }
 
@@ -217,6 +218,7 @@ extension JJContentScrollView: UIScrollViewDelegate {
     internal func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let index = Int(contentScrollView.contentOffset.x / self.width)
         currNewsTypeIndex.value = index
+        currContentViewTag = index + contentViewTagIndex
         startPullToRefresh()
     }
 }
@@ -282,7 +284,7 @@ extension JJContentScrollView: UITableViewDelegate, UITableViewDataSource {
     
     internal func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        delegate?.didTableViewCellSelected(index: indexPath.row, isBanner: false)
+//        delegate?.didTableViewCellSelected(index: indexPath.row, isBanner: false)
     }
 }
 
@@ -290,6 +292,6 @@ extension JJContentScrollView: UITableViewDelegate, UITableViewDataSource {
 extension JJContentScrollView: JJBannerViewDelegate {
     
     internal func didBannerViewClicked(index: Int) {
-        delegate?.didTableViewCellSelected(index: index, isBanner: true)
+//        delegate?.didTableViewCellSelected(index: index, isBanner: true)
     }
 }
