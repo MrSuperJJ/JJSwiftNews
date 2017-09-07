@@ -1,5 +1,5 @@
 //
-//  JJNewsModel.swift
+//  NewsModel.swift
 //  JJSwiftNews
 //
 //  Created by Mr.JJ on 2017/7/29.
@@ -7,47 +7,9 @@
 //
 
 import Foundation
-import SwiftyJSON
 import ObjectMapper
 
-struct NewsModel: NewsModelType {
-
-    var title: String {
-        return newsJSON["title"].stringValue
-    }
-
-    var imageLink: String {
-        return newsJSON["thumbnail_pic_s"].stringValue
-    }
-
-    var isPure: Bool {
-//        return newsJSON["ispure"].boolValue
-        return isPureNews
-    }
-
-    var uniquekey: String {
-        return newsJSON["uniquekey"].stringValue
-    }
-
-    var authorName: String {
-        return newsJSON["author_name"].stringValue
-    }
-
-    var url: String {
-        return newsJSON["url"].stringValue
-    }
-
-    private let newsJSON: JSON
-    private let isPureNews: Bool
-
-    init(_ newsJSON: JSON) {
-        self.newsJSON = newsJSON
-        /// 随机数控制是否是纯文本资讯
-        isPureNews = Int.random(0...10) % 2 == 0 ? true : false
-    }
-}
-
-struct NewsDataModel: NewsModelType, Mappable {
+struct NewsModel: NewsModelType, Mappable {
 
     var title: String {
         return newsTitle
@@ -96,7 +58,7 @@ struct NewsDataModel: NewsModelType, Mappable {
 struct NewsDataResult: Mappable {
     
     var state: String!
-    var newsDataArray: [NewsDataModel]!
+    var newsDataArray: [NewsModel]!
 
     init?(map: Map) { }
 

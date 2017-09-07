@@ -7,12 +7,8 @@
 //
 
 import UIKit
-
-@objc(JJTopicScrollViewDelegate)
-protocol JJTopicScrollViewDelegate {
-    
-    func didtopicViewChanged(index: Int, value: String)
-}
+// MVVM
+import RxSwift
 
 class JJTopicScrollView: UIView {
 
@@ -43,8 +39,7 @@ class JJTopicScrollView: UIView {
     private let topicViewTagIndex = 1000                               // topicViewTag偏移量
     private var lastTopicViewTag: Int                                  // 最近一次选中topicView的Tag
     private var dataSourceArray: Array<String>?
-    weak public var delegate: JJTopicScrollViewDelegate?
-
+    
     // MARK: - Life Cycle
     init(frame: CGRect, topicViewWidth: CGFloat) {
         self.topicViewWidth = topicViewWidth
@@ -74,7 +69,9 @@ class JJTopicScrollView: UIView {
             topicView.setTitleColor(index == 0 ? UIColor(valueRGB: 0x4285f4, alpha: 1) : UIColor(valueRGB: 0x999999, alpha: 1), for: .normal)
             topicView.titleLabel?.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
             topicView.tag = index + topicViewTagIndex
-            topicView.addTarget(self, action: #selector(topicViewClicked(sender:)), for: .touchUpInside)
+            topicView.rx.tap.asObservable().subscribe(onNext: { [unowned self] in
+                currNewsTypeIndex.value = topicView.tag - self.topicViewTagIndex
+            }).disposed(by: disposeBag)
             topicScrollView.addSubview(topicView)
         }
 
@@ -82,36 +79,17 @@ class JJTopicScrollView: UIView {
         topicScrollView.addSubview(selectedBottomLine)
         self.addSubview(bottomLine)
     }
-
-    // MARK: topic点击
-    @objc private func topicViewClicked(sender: UIButton) {
-        let currTopicViewTag = sender.tag
-        let lastView = topicScrollView.viewWithTag(lastTopicViewTag) as? UIButton
-        let currView = topicScrollView.viewWithTag(currTopicViewTag) as? UIButton
-        guard let currentTopicView = currView, let lastTopicView = lastView else {
-            return
-        }
-        lastTopicViewTag = currTopicViewTag
-        lastTopicView.setTitleColor(UIColor(valueRGB: 0x999999, alpha: 1), for: .normal)
-        currentTopicView.setTitleColor(UIColor(valueRGB: 0x4285f4, alpha: 1), for: .normal)
-        UIView.animate(withDuration: 0.3) {
-            self.selectedBottomLine.frame = CGRect(x: currentTopicView.left, y: currentTopicView.bottom - 2, width: currentTopicView.width, height: 2)
-        }
-        if let dataSourceArray = dataSourceArray {
-            let index = currTopicViewTag-topicViewTagIndex
-            delegate?.didtopicViewChanged(index: index, value: dataSourceArray[index])
-        }
-    }
-
-    // MARK: topicView切换
-    public func switchToSelectedtopicView(index: Int) {
-        let currentTopicViewTag = index + topicViewTagIndex
-        let lastView = topicScrollView.viewWithTag(lastTopicViewTag) as? UIButton
-        let currentView = topicScrollView.viewWithTag(currentTopicViewTag) as? UIButton
-        guard let currentTopicView = currentView, let lastTopicView = lastView else {
-            return
-        }
-        lastTopicViewTag = currentTopicViewTag
+    
+    /// 切换资讯TopicView
+    ///
+    /// - Parameter index: Topic索引
+    internal func switchToSelectedTopicView(of index: Int) {
+        let currTopicViewTag = index + topicViewTagIndex
+        guard currTopicViewTag != self.lastTopicViewTag else { return }
+        let lastView = self.topicScrollView.viewWithTag(self.lastTopicViewTag) as? UIButton
+        let currView = self.topicScrollView.viewWithTag(currTopicViewTag) as? UIButton
+        guard let currentTopicView = currView, let lastTopicView = lastView else { return }
+        self.lastTopicViewTag = currTopicViewTag
         lastTopicView.setTitleColor(UIColor(valueRGB: 0x999999, alpha: 1), for: .normal)
         currentTopicView.setTitleColor(UIColor(valueRGB: 0x4285f4, alpha: 1), for: .normal)
         UIView.animate(withDuration: 0.3) {

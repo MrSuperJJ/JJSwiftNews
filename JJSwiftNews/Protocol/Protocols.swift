@@ -1,5 +1,5 @@
 //
-//  JJModelProtocol.swift
+//  Protocols.swift
 //  JJSwiftNews
 //
 //  Created by Mr.JJ on 2017/7/29.
@@ -11,7 +11,16 @@ import Foundation
 import RxSwift
 
 /// Banner协议
-protocol BannerModelType { }
+protocol BannerModelType {
+    /// Banner标题
+    var title: String { get }
+    /// Banner图片链接
+    var imageLink: String { get }
+    /// 资讯唯一标识
+    var uniquekey: String { get }
+    /// Banner链接
+    var url: String { get }
+}
 
 /// 资讯协议
 protocol NewsModelType {
@@ -25,10 +34,12 @@ protocol NewsModelType {
     var uniquekey: String { get }
     /// 资讯来源
     var authorName: String { get }
-    /// 资讯连接
+    /// 资讯链接
     var url: String { get }
 }
 
+typealias NewsDataResultObservable = Observable<([BannerModelType], [NewsModelType])>
+
 protocol NewsService {
-    func requestNewsData(of newsType: String) -> Observable<[NewsDataModel]>
+    func requestNewsData(of newsType: String) -> NewsDataResultObservable
 }

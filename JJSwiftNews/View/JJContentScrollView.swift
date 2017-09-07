@@ -15,9 +15,7 @@ import RxCocoa
 
 @objc(JJContentScrollViewDelegate)
 protocol JJContentScrollViewDelegate {
-    
-    func didContentViewChanged(index: Int)
-    func didTableViewStartRefreshing(index: Int)
+
     func didTableViewStartLoadingMore(index: Int)
     
     func didTableViewCellSelected(index: Int, isBanner: Bool)
@@ -45,17 +43,14 @@ class JJContentScrollView: UIView {
     fileprivate let norImageTextCellReuseIdentifier = "NorImageTextCellReuseIdentifier"      ///<普通Cell-图文
     fileprivate let topCellHeight = CGFloat(adValue: 162)
     fileprivate let norCellHeight = CGFloat(adValue: 76)
-    fileprivate var bannerModelArray = Array<BannerModel>()
-    fileprivate var newsModelArray   = Array<NewsModel>()
+    fileprivate var bannerModelArray = [BannerModelType]()
+    fileprivate var newsModelArray   = [NewsModelType]()
 
     fileprivate let contentViewTagIndex = 1000 // 初始ContentView的Tag偏移量
     private var lastContentViewTag: Int    // 上次选中的ContentView的Tag
     private var currContentViewTag: Int    // 当前选中的ContentView的Tag
 
     weak internal var delegate: JJContentScrollViewDelegate?
-
-    // MVVM
-    var tableViewIndex = PublishSubject<Int>()
     
     // MARK: - Life Cycle
     override init(frame: CGRect) {
@@ -77,22 +72,9 @@ class JJContentScrollView: UIView {
     
     // MARK: - Functions
     // TableView切换
-    public func switchToSelectedContentView(index: Int) {
+    public func switchToSelectedContentView(of index: Int) {
         contentScrollView.setContentOffset(CGPoint(x: CGFloat(index) * self.width, y:0), animated: false)
-        if isContentTableViewChanged(index: index) == false {
-            return
-        }
         startPullToRefresh()
-    }
-
-    // 是否切换TableView
-    fileprivate func isContentTableViewChanged(index: Int) -> Bool {
-        lastContentViewTag = currContentViewTag
-        currContentViewTag = index + contentViewTagIndex
-        if lastContentViewTag == currContentViewTag {
-            return false // 重复点击同一个Title，不刷新页面
-        }
-        return true
     }
 
     // 开始下拉刷新（触发时机：1.初次加载，2.页面切换，3.点击错误页面按钮）
@@ -141,7 +123,7 @@ class JJContentScrollView: UIView {
     }
 
     // 刷新TableView内容
-    public func refreshTableView(bannerModelArray: Array<BannerModel>, newsModelArray: Array<NewsModel>, isPullToRefresh: Bool) {
+    public func refreshTableView(bannerModelArray: [BannerModelType], newsModelArray: [NewsModelType], isPullToRefresh: Bool) {
         self.bannerModelArray = bannerModelArray
         self.newsModelArray = newsModelArray
         if let currentTableView = currentTableView {
@@ -195,20 +177,13 @@ class JJContentScrollView: UIView {
                 if let errorRetryView = self.errorRetryView {
                     errorRetryView.hide()
                 }
-                // 通知代理对象请求数据
-                let index = Int(self.contentScrollView.contentOffset.x / self.width)
-                self.delegate?.didTableViewStartRefreshing(index: index)
                 contentView.mj_footer.resetNoMoreData()
-                // MVVM
-                self.tableViewIndex.onNext(index)
             })
 
             let refreshFooter = MJRefreshAutoNormalFooter(refreshingBlock: { [unowned self] in
                 // 通知代理对象请求数据
                 let index = Int(self.contentScrollView.contentOffset.x / self.width)
                 self.delegate?.didTableViewStartLoadingMore(index: index)
-                // MVVM
-                self.tableViewIndex.onNext(index)
             })!
             refreshFooter.setTitle("", for: .idle)
             contentView.mj_footer = refreshFooter
@@ -241,10 +216,7 @@ extension JJContentScrollView: UIScrollViewDelegate {
     
     internal func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let index = Int(contentScrollView.contentOffset.x / self.width)
-        if isContentTableViewChanged(index: index) == false {
-            return
-        }
-        delegate?.didContentViewChanged(index: index)
+        currNewsTypeIndex.value = index
         startPullToRefresh()
     }
 }
