@@ -115,12 +115,12 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
     internal func didTableViewStartRefreshing(index: Int) {
         let bannerModelCount = Int.random(1...4) ///<Banner数量
         currTopicType = self.newsTopicArray[index]["type"]!
-        JJNewsAlamofireUtil.requestData(type: currTopicType) { [unowned self] (contentJSON, error) in
-            if let contentScrollView = self.bodyScrollView {
-                if let contentJSON = contentJSON {
-                    self.bannerModelArray.removeAll()
-                    self.newsModelArray.removeAll()
-                    self.lastNewsUniqueKey = ""
+//        JJNewsAlamofireUtil.requestData(type: currTopicType) { [unowned self] (contentJSON, error) in
+//            if let contentScrollView = self.bodyScrollView {
+//                if let contentJSON = contentJSON {
+//                    self.bannerModelArray.removeAll()
+//                    self.newsModelArray.removeAll()
+//                    self.lastNewsUniqueKey = ""
 //                    _ = contentJSON.split(whereSeparator: {(index, subJSON) -> Bool in
 //                        Int(index)! < bannerModelCount ? self.bannerModelArray.append(BannerModel(subJSON)) : self.newsModelArray.append(NewsModel(subJSON))
 //                        if index == String(contentJSON.count - 1) {
@@ -129,29 +129,29 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
 //                        return true
 //                    })
 //                    contentScrollView.refreshTableView(bannerModelArray: self.bannerModelArray, newsModelArray: self.newsModelArray, isPullToRefresh: true)
-                } else {
-                    if let error = error {
-                        print(error.description)
-                        switch error {
-                        case .networkError:
-                            self.showPopView(message: "网络异常", showTime: 1)
-                            contentScrollView.showErrorRetryView(errorMessage: error.description)
-                        default:
-                            contentScrollView.showErrorRetryView(errorMessage: error.description)
-                        }
-                    }
-                }
-                contentScrollView.stopPullToRefresh()
-            }
-        }
+//                } else {
+//                    if let error = error {
+//                        print(error.description)
+//                        switch error {
+//                        case .networkError:
+//                            self.showPopView(message: "网络异常", showTime: 1)
+//                            contentScrollView.showErrorRetryView(errorMessage: error.description)
+//                        default:
+//                            contentScrollView.showErrorRetryView(errorMessage: error.description)
+//                        }
+//                    }
+//                }
+//                contentScrollView.stopPullToRefresh()
+//            }
+//        }
     }
     
     internal func didTableViewStartLoadingMore(index: Int) {
         currTopicType = self.newsTopicArray[index]["type"]!
-        JJNewsAlamofireUtil.requestData(type: currTopicType) { (contentJSON, error) in
-            if let contentScrollView = self.bodyScrollView {
-                if let contentJSON = contentJSON {
-                    contentScrollView.stopLoadingMore()
+//        JJNewsAlamofireUtil.requestData(type: currTopicType) { (contentJSON, error) in
+//            if let contentScrollView = self.bodyScrollView {
+//                if let contentJSON = contentJSON {
+//                    contentScrollView.stopLoadingMore()
 //                    _ = contentJSON.split(whereSeparator: {(index, subJSON) -> Bool in
 //                        self.newsModelArray.append(NewsModel(subJSON))
 //                        if index == String(contentJSON.count - 1) {
@@ -160,22 +160,22 @@ extension NewsMainViewController: JJContentScrollViewDelegate {
 //                        return true
 //                    })
 //                    contentScrollView.refreshTableView(bannerModelArray: self.bannerModelArray, newsModelArray: self.newsModelArray, isPullToRefresh: false)
-                } else {
-                    if let error = error {
-                        print(error.description)
-                        switch error {
-                        case .networkError:
-                            self.showPopView(message: "网络异常", showTime: 1)
-                            contentScrollView.stopLoadingMore()
-                        case .noMoreDataError:
-                            contentScrollView.stopLoadingMoreWithNoMoreData()
-                        default:
-                            contentScrollView.stopLoadingMore()
-                        }
-                    }
-                }
-            }
-        }
+//                } else {
+//                    if let error = error {
+//                        print(error.description)
+//                        switch error {
+//                        case .networkError:
+//                            self.showPopView(message: "网络异常", showTime: 1)
+//                            contentScrollView.stopLoadingMore()
+//                        case .noMoreDataError:
+//                            contentScrollView.stopLoadingMoreWithNoMoreData()
+//                        default:
+//                            contentScrollView.stopLoadingMore()
+//                        }
+//                    }
+//                }
+//            }
+//        }
     }
     
     internal func didTableViewCellSelected(index: Int, isBanner: Bool) {
