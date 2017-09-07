@@ -48,14 +48,12 @@ class JJContentScrollView: UIView {
 
     fileprivate let contentViewTagIndex = 1000 // 初始ContentView的Tag偏移量
     private var lastContentViewTag: Int    // 上次选中的ContentView的Tag
-    fileprivate var currContentViewTag: Int    // 当前选中的ContentView的Tag
 
     weak internal var delegate: JJContentScrollViewDelegate?
     
     // MARK: - Life Cycle
     override init(frame: CGRect) {
         lastContentViewTag = 0
-        currContentViewTag = contentViewTagIndex
         super.init(frame: frame)
         self.backgroundColor = UIColor(valueRGB: 0xebebeb, alpha: 1)
     }
@@ -74,14 +72,13 @@ class JJContentScrollView: UIView {
     // TableView切换
     public func switchToSelectedContentView(of index: Int) {
         contentScrollView.setContentOffset(CGPoint(x: CGFloat(index) * self.width, y:0), animated: false)
-        currContentViewTag = index + contentViewTagIndex
         startPullToRefresh()
     }
 
     // 开始下拉刷新（触发时机：1.初次加载，2.页面切换，3.点击错误页面按钮）
     public func startPullToRefresh() {
         resetLastTableViewState()
-        currentTableView = contentScrollView.viewWithTag(currContentViewTag) as? JJContentTableView
+        currentTableView = contentScrollView.viewWithTag(currNewsTypeIndex.value + contentViewTagIndex) as? JJContentTableView
         if let currentTableView = self.currentTableView {
             let bannerIndexPath = IndexPath(row: 0, section: 0)
             self.currentBannerView = currentTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(self.contentViewTagIndex) as? JJNewsBannerView
@@ -218,7 +215,6 @@ extension JJContentScrollView: UIScrollViewDelegate {
     internal func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let index = Int(contentScrollView.contentOffset.x / self.width)
         currNewsTypeIndex.value = index
-        currContentViewTag = index + contentViewTagIndex
         startPullToRefresh()
     }
 }
