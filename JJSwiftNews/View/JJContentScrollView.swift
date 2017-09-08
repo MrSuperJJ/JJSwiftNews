@@ -46,7 +46,7 @@ class JJContentScrollView: UIView {
     fileprivate var bannerModelArray = [BannerModelType]()
     fileprivate var newsModelArray   = [NewsModelType]()
 
-    fileprivate let contentViewTagIndex = 1000 // 初始ContentView的Tag偏移量
+    fileprivate let newsViewTag: Int
     private var lastContentViewTag: Int    // 上次选中的ContentView的Tag
 
     weak internal var delegate: JJContentScrollViewDelegate?
@@ -54,6 +54,7 @@ class JJContentScrollView: UIView {
     // MARK: - Life Cycle
     override init(frame: CGRect) {
         lastContentViewTag = 0
+        newsViewTag = 0.tagByAddingOffset
         super.init(frame: frame)
         self.backgroundColor = UIColor(valueRGB: 0xebebeb, alpha: 1)
     }
@@ -78,10 +79,10 @@ class JJContentScrollView: UIView {
     // 开始下拉刷新（触发时机：1.初次加载，2.页面切换，3.点击错误页面按钮）
     public func startPullToRefresh() {
         resetLastTableViewState()
-        currentTableView = contentScrollView.viewWithTag(currNewsTypeIndex.value + contentViewTagIndex) as? JJContentTableView
+        currentTableView = contentScrollView.viewWithTag(currNewsTypeIndex.value.tagByAddingOffset) as? JJContentTableView
         if let currentTableView = self.currentTableView {
             let bannerIndexPath = IndexPath(row: 0, section: 0)
-            self.currentBannerView = currentTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(self.contentViewTagIndex) as? JJNewsBannerView
+            self.currentBannerView = currentTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? JJNewsBannerView
             currentTableView.mj_header.beginRefreshing()
         }
     }
@@ -112,7 +113,7 @@ class JJContentScrollView: UIView {
         let lastTableView = contentScrollView.viewWithTag(lastContentViewTag) as? JJContentTableView
         if let lastTableView = lastTableView {
             let bannerIndexPath = IndexPath(row: 0, section: 0)
-            let lastBannerView = lastTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(contentViewTagIndex) as? JJNewsBannerView
+            let lastBannerView = lastTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? JJNewsBannerView
             if let lastBannerView = lastBannerView {
                 lastBannerView.stopScroll()         // 停止上一个页面的Banner滚动
             }
@@ -156,7 +157,7 @@ class JJContentScrollView: UIView {
         
         for index in 0 ..< tableViewCount {
             let contentView = JJContentTableView(frame: CGRect(x: CGFloat(index) * self.width , y: 0, width: self.width, height: self.height))
-            contentView.tag = index + contentViewTagIndex
+            contentView.tag = index.tagByAddingOffset
             contentView.delegate = self
             contentView.dataSource = self
             contentView.separatorStyle = .none
@@ -247,14 +248,14 @@ extension JJContentScrollView: UITableViewDelegate, UITableViewDataSource {
     internal func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: topCellReuseIdentifier, for: indexPath)
-            let bannerView = cell.viewWithTag(contentViewTagIndex) as? JJNewsBannerView
+            let bannerView = cell.viewWithTag(newsViewTag) as? JJNewsBannerView
             if let bannerView = bannerView {
                 bannerView.setupScrollViewContents(bannerModelArray: bannerModelArray)
             } else {
                 let bannerView = JJNewsBannerView(frame: CGRect(x: 0, y:0, width:self.width, height: topCellHeight))
                 bannerView.delegate = self
                 bannerView.shouldScrollAutomatically = true
-                bannerView.tag = contentViewTagIndex
+                bannerView.tag = newsViewTag
                 cell.contentView.addSubview(bannerView)
             }
             return cell
@@ -264,12 +265,12 @@ extension JJContentScrollView: UITableViewDelegate, UITableViewDataSource {
             let cellReuseIdentifiter = isPure ? norPureTextCellReuseIdentifier : norImageTextCellReuseIdentifier
             let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifiter, for: indexPath)
             if newsModelArray.count > indexPath.row {
-                let contentView = cell.viewWithTag(contentViewTagIndex) as? JJNewsContentView
+                let contentView = cell.viewWithTag(newsViewTag) as? JJNewsContentView
                 if let contentView = contentView {
                     contentView.updateView(newsModel: newsModel)
                 } else {
                     let contentView = JJNewsContentView(frame: CGRect(x: 0, y:0, width:self.width, height: norCellHeight), isPure: isPure)
-                    contentView.tag = contentViewTagIndex
+                    contentView.tag = newsViewTag
                     contentView.updateView(newsModel: newsModel)
                     cell.contentView.addSubview(contentView)
                 }

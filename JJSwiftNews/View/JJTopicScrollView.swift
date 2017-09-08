@@ -36,14 +36,13 @@ class JJTopicScrollView: UIView {
     }()
 
     private var topicViewWidth: CGFloat                                // 每个topicView宽度
-    private let topicViewTagIndex = 1000                               // topicViewTag偏移量
     private var lastTopicViewTag: Int                                  // 最近一次选中topicView的Tag
     private var dataSourceArray: Array<String>?
     
     // MARK: - Life Cycle
     init(frame: CGRect, topicViewWidth: CGFloat) {
         self.topicViewWidth = topicViewWidth
-        self.lastTopicViewTag = topicViewTagIndex
+        self.lastTopicViewTag = 0.tagByAddingOffset
         super.init(frame: frame)
     }
 
@@ -68,9 +67,9 @@ class JJTopicScrollView: UIView {
             topicView.setTitle(value, for: .normal)
             topicView.setTitleColor(index == 0 ? UIColor(valueRGB: 0x4285f4, alpha: 1) : UIColor(valueRGB: 0x999999, alpha: 1), for: .normal)
             topicView.titleLabel?.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
-            topicView.tag = index + topicViewTagIndex
+            topicView.tag = index.tagByAddingOffset
             topicView.rx.tap.asObservable().subscribe(onNext: { [unowned self] in
-                currNewsTypeIndex.value = topicView.tag - self.topicViewTagIndex
+                currNewsTypeIndex.value = topicView.tag.indexByRemovingOffset
             }).disposed(by: disposeBag)
             topicScrollView.addSubview(topicView)
         }
@@ -84,7 +83,7 @@ class JJTopicScrollView: UIView {
     ///
     /// - Parameter index: Topic索引
     internal func switchToSelectedTopicView(of index: Int) {
-        let currTopicViewTag = index + topicViewTagIndex
+        let currTopicViewTag = index.tagByAddingOffset
         guard currTopicViewTag != self.lastTopicViewTag else { return }
         let lastView = self.topicScrollView.viewWithTag(self.lastTopicViewTag) as? UIButton
         let currView = self.topicScrollView.viewWithTag(currTopicViewTag) as? UIButton
