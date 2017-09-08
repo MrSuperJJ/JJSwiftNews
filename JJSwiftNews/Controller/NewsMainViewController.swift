@@ -131,7 +131,8 @@ class NewsMainViewController: UIViewController {
             currNewsTableView.value.rx.itemSelected.map { indexPath in
                     return (indexPath, newsDataSource[indexPath])
                 }.subscribe(onNext: { [unowned self] indexPath, element in
-//                    self.openNewsDetailViewController(indexPath: indexPath, element: element)
+                    let newsModel = indexPath.section == 0 ? (element as! [BannerModelType])[indexPath.row] as! NewsModelType : element as! NewsModelType
+                    self.openNewsDetailViewController(indexPath: indexPath, newsModel: newsModel)
                 }).disposed(by: disposeBag)
             
             currNewsTableView.value.rx.setDelegate(self).disposed(by: disposeBag)
@@ -170,20 +171,19 @@ extension NewsMainViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-//    fileprivate func openNewsDetailViewController(indexPath: IndexPath, element: Any) {
-//        let newsModel = indexPath.section == 0 ? (element as! [BannerModelType])[indexPath.row] : (element as! NewsModelType)
-//        let newsDetailController = JJWebViewController()
-//        newsDetailController.requestURLPath = newsModel.url
-//        self.navigationController?.pushViewController(newsDetailController, animated: true)
-//        // 更新已读状态
-//        var readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) ?? [String : Bool]()
-//        readedNewsDict["\(newsModel.uniquekey)"] = true
-//        UserDefaults.standard.set(readedNewsDict, forKey: kReadedNewsKey)
-//        UserDefaults.standard.synchronize()
-//        if indexPath.section == 1, let contentScrollView = self.bodyScrollView {
-//            contentScrollView.refreshTabaleCellReadedState(index: indexPath.row, isBanner: false)
-//        }
-//    }
+    fileprivate func openNewsDetailViewController(indexPath: IndexPath, newsModel: NewsModelType) {
+        let newsDetailController = JJWebViewController()
+        newsDetailController.requestURLPath = newsModel.url
+        self.navigationController?.pushViewController(newsDetailController, animated: true)
+        // 更新已读状态
+        var readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) ?? [String : Bool]()
+        readedNewsDict["\(newsModel.uniquekey)"] = true
+        UserDefaults.standard.set(readedNewsDict, forKey: kReadedNewsKey)
+        UserDefaults.standard.synchronize()
+        if indexPath.section == 1, let contentScrollView = self.bodyScrollView {
+            contentScrollView.refreshTabaleCellReadedState(index: indexPath.row, isBanner: false)
+        }
+    }
 }
 
 // MARK: - 从后台进入前台，更新数据
