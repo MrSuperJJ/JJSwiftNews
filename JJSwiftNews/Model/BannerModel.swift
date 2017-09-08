@@ -18,8 +18,16 @@ struct BannerModel: BannerModelType {
         return newsImageLink
     }
     
+    var isPure: Bool {
+        return newsIsPure
+    }
+    
     var uniquekey: String {
         return newsUniquekey
+    }
+    
+    var authorName: String {
+        return newsAuthorName
     }
     
     var url: String {
@@ -28,13 +36,17 @@ struct BannerModel: BannerModelType {
     
     private var newsTitle: String!
     private var newsImageLink: String!
-    private var newsUrl: String!
+    private var newsIsPure: Bool!
     private var newsUniquekey: String!
+    private var newsAuthorName: String!
+    private var newsUrl: String!
 
     init(newsModel: NewsModelType) {
         newsTitle = newsModel.title
         newsImageLink = newsModel.imageLink
+        newsIsPure = newsModel.isPure
         newsUniquekey = newsModel.uniquekey
+        newsAuthorName = newsModel.authorName
         newsUrl = newsModel.url
     }
 }

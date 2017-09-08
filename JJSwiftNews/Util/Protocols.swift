@@ -7,23 +7,9 @@
 //
 
 import Foundation
-// MMVM
 import RxSwift
 
-/// Banner协议
-protocol BannerModelType {
-    /// Banner标题
-    var title: String { get }
-    /// Banner图片链接
-    var imageLink: String { get }
-    /// 资讯唯一标识
-    var uniquekey: String { get }
-    /// Banner链接
-    var url: String { get }
-}
-
-/// 资讯协议
-protocol NewsModelType {
+protocol NewsType {
     /// 资讯标题
     var title: String { get }
     /// 资讯图片连接
@@ -37,6 +23,12 @@ protocol NewsModelType {
     /// 资讯链接
     var url: String { get }
 }
+
+/// Banner协议
+protocol BannerModelType: NewsType { }
+
+/// 资讯协议
+protocol NewsModelType: NewsType { }
 
 typealias NewsDataResultObservable = Observable<([BannerModelType], [NewsModelType])>
 

@@ -68,7 +68,7 @@ class JJTopicScrollView: UIView {
             topicView.setTitleColor(index == 0 ? UIColor(valueRGB: 0x4285f4, alpha: 1) : UIColor(valueRGB: 0x999999, alpha: 1), for: .normal)
             topicView.titleLabel?.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
             topicView.tag = index.tagByAddingOffset
-            topicView.rx.tap.asObservable().subscribe(onNext: { [unowned self] in
+            topicView.rx.tap.asObservable().subscribe(onNext: {
                 currNewsTypeIndex.value = topicView.tag.indexByRemovingOffset
             }).disposed(by: disposeBag)
             topicScrollView.addSubview(topicView)

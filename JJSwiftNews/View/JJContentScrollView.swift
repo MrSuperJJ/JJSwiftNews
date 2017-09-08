@@ -7,19 +7,9 @@
 //
 
 import UIKit
-import SwiftyJSON
 import MJRefresh
-// MVVM
 import RxSwift
 import RxCocoa
-
-@objc(JJContentScrollViewDelegate)
-protocol JJContentScrollViewDelegate {
-
-    func didTableViewStartLoadingMore(index: Int)
-    
-    func didTableViewCellSelected(index: Int, isBanner: Bool)
-}
 
 class JJContentScrollView: UIView {
     
@@ -36,25 +26,18 @@ class JJContentScrollView: UIView {
 
     private var errorRetryView: JJErrorRetryView?
 
-    private var currentTableView: JJContentTableView? // 当前显示的TableView
+    private var currentTableView: UITableView? // 当前显示的TableView
     private var currentBannerView: JJNewsBannerView?
-    fileprivate let topCellReuseIdentifier = "TopCellReuseIdentifier"                        ///<置顶Cell
-    fileprivate let norPureTextCellReuseIdentifier = "NorPureTextCellReuseIdentifier"        ///<普通Cell-文本
-    fileprivate let norImageTextCellReuseIdentifier = "NorImageTextCellReuseIdentifier"      ///<普通Cell-图文
     fileprivate let topCellHeight = CGFloat(adValue: 162)
     fileprivate let norCellHeight = CGFloat(adValue: 76)
     fileprivate var bannerModelArray = [BannerModelType]()
     fileprivate var newsModelArray   = [NewsModelType]()
 
-    fileprivate let newsViewTag: Int
     private var lastContentViewTag: Int    // 上次选中的ContentView的Tag
-
-    weak internal var delegate: JJContentScrollViewDelegate?
     
     // MARK: - Life Cycle
     override init(frame: CGRect) {
         lastContentViewTag = 0
-        newsViewTag = 0.tagByAddingOffset
         super.init(frame: frame)
         self.backgroundColor = UIColor(valueRGB: 0xebebeb, alpha: 1)
     }
@@ -77,9 +60,9 @@ class JJContentScrollView: UIView {
     }
 
     // 开始下拉刷新（触发时机：1.初次加载，2.页面切换，3.点击错误页面按钮）
-    public func startPullToRefresh() {
+    internal func startPullToRefresh() {
         resetLastTableViewState()
-        currentTableView = contentScrollView.viewWithTag(currNewsTypeIndex.value.tagByAddingOffset) as? JJContentTableView
+        currentTableView = contentScrollView.viewWithTag(currNewsTypeIndex.value.tagByAddingOffset) as? UITableView
         if let currentTableView = self.currentTableView {
             let bannerIndexPath = IndexPath(row: 0, section: 0)
             self.currentBannerView = currentTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? JJNewsBannerView
@@ -88,14 +71,14 @@ class JJContentScrollView: UIView {
     }
     
     // 结束下拉刷新
-    public func stopPullToRefresh() {
+    internal func stopPullToRefresh() {
         if let currentTableView = currentTableView {
             currentTableView.mj_header.endRefreshing()
         }
     }
     
     // 结束加载更多
-    public func stopLoadingMore() {
+    internal func stopLoadingMore() {
         if let currentTableView = currentTableView {
             currentTableView.mj_footer.endRefreshing()
         }
@@ -110,7 +93,7 @@ class JJContentScrollView: UIView {
 
     // 重置上一个TableView的状态
     private func resetLastTableViewState() {
-        let lastTableView = contentScrollView.viewWithTag(lastContentViewTag) as? JJContentTableView
+        let lastTableView = contentScrollView.viewWithTag(lastContentViewTag) as? UITableView
         if let lastTableView = lastTableView {
             let bannerIndexPath = IndexPath(row: 0, section: 0)
             let lastBannerView = lastTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? JJNewsBannerView
@@ -122,22 +105,22 @@ class JJContentScrollView: UIView {
     }
 
     // 刷新TableView内容
-    public func refreshTableView(bannerModelArray: [BannerModelType], newsModelArray: [NewsModelType], isPullToRefresh: Bool) {
-        self.bannerModelArray = bannerModelArray
-        self.newsModelArray = newsModelArray
-        if let currentTableView = currentTableView {
-            currentTableView.hasReloadDataBefore = true
-            currentTableView.reloadData()
-
-            if isPullToRefresh == true { // 下拉刷新后开启计时器
-                DispatchQueue.main.async { // TableView刷新后启动定时器
-                    if let currentBannerView = self.currentBannerView , currentBannerView.shouldScrollAutomatically == true {
-                        currentBannerView.startScroll()
-                    }
-                }
-            }
-        }
-    }
+//    public func refreshTableView(bannerModelArray: [BannerModelType], newsModelArray: [NewsModelType], isPullToRefresh: Bool) {
+//        stopPullToRefresh()
+//        self.bannerModelArray = bannerModelArray
+//        self.newsModelArray = newsModelArray
+//        if let currentTableView = currentTableView {
+//            currentTableView.reloadData()
+//
+//            if isPullToRefresh == true { // 下拉刷新后开启计时器
+//                DispatchQueue.main.async { // TableView刷新后启动定时器
+//                    if let currentBannerView = self.currentBannerView , currentBannerView.shouldScrollAutomatically == true {
+//                        currentBannerView.startScroll()
+//                    }
+//                }
+//            }
+//        }
+//    }
     
     // 刷新TableViewCell已读状态
     public func refreshTabaleCellReadedState(index: Int, isBanner: Bool) {
@@ -156,10 +139,10 @@ class JJContentScrollView: UIView {
         contentScrollView.contentSize = CGSize(width: CGFloat(tableViewCount) * self.width, height: 0)
         
         for index in 0 ..< tableViewCount {
-            let contentView = JJContentTableView(frame: CGRect(x: CGFloat(index) * self.width , y: 0, width: self.width, height: self.height))
+            let contentView = UITableView(frame: CGRect(x: CGFloat(index) * self.width , y: 0, width: self.width, height: self.height))
             contentView.tag = index.tagByAddingOffset
-            contentView.delegate = self
-            contentView.dataSource = self
+//            contentView.delegate = self
+//            contentView.dataSource = self
             contentView.separatorStyle = .none
             contentView.register(UITableViewCell.self, forCellReuseIdentifier: topCellReuseIdentifier)
             contentView.register(UITableViewCell.self, forCellReuseIdentifier: norPureTextCellReuseIdentifier)
@@ -182,7 +165,6 @@ class JJContentScrollView: UIView {
             let refreshFooter = MJRefreshAutoNormalFooter(refreshingBlock: { [unowned self] in
                 // 通知代理对象请求数据
                 let index = Int(self.contentScrollView.contentOffset.x / self.width)
-                self.delegate?.didTableViewStartLoadingMore(index: index)
             })!
             refreshFooter.setTitle("", for: .idle)
             contentView.mj_footer = refreshFooter
@@ -199,9 +181,6 @@ class JJContentScrollView: UIView {
 
     // 显示错误信息页面
     internal func showErrorRetryView(errorMessage: String) {
-        if currentTableView?.hasReloadDataBefore == true {
-            return
-        }
         if let errorRetryView = self.errorRetryView {
             errorRetryView.show(errorMessage: errorMessage, retryClosure: { [unowned self] in
                 self.startPullToRefresh()
@@ -217,71 +196,6 @@ extension JJContentScrollView: UIScrollViewDelegate {
         let index = Int(contentScrollView.contentOffset.x / self.width)
         currNewsTypeIndex.value = index
         startPullToRefresh()
-    }
-}
-
-// MARK: - UITableViewDelegate / UITableViewDataSource
-extension JJContentScrollView: UITableViewDelegate, UITableViewDataSource {
-    
-    internal func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-    
-    internal func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return 1
-        } else {
-            return newsModelArray.count
-        }
-    }
-    
-    internal func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let height: CGFloat
-        if indexPath.section == 0 {
-            height = topCellHeight
-        } else {
-            height = norCellHeight
-        }
-        return CGFloat(height)
-    }
-    
-    internal func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.section == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: topCellReuseIdentifier, for: indexPath)
-            let bannerView = cell.viewWithTag(newsViewTag) as? JJNewsBannerView
-            if let bannerView = bannerView {
-                bannerView.setupScrollViewContents(bannerModelArray: bannerModelArray)
-            } else {
-                let bannerView = JJNewsBannerView(frame: CGRect(x: 0, y:0, width:self.width, height: topCellHeight))
-                bannerView.delegate = self
-                bannerView.shouldScrollAutomatically = true
-                bannerView.tag = newsViewTag
-                cell.contentView.addSubview(bannerView)
-            }
-            return cell
-        } else {
-            let newsModel = newsModelArray[indexPath.row]
-            let isPure = newsModel.isPure
-            let cellReuseIdentifiter = isPure ? norPureTextCellReuseIdentifier : norImageTextCellReuseIdentifier
-            let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifiter, for: indexPath)
-            if newsModelArray.count > indexPath.row {
-                let contentView = cell.viewWithTag(newsViewTag) as? JJNewsContentView
-                if let contentView = contentView {
-                    contentView.updateView(newsModel: newsModel)
-                } else {
-                    let contentView = JJNewsContentView(frame: CGRect(x: 0, y:0, width:self.width, height: norCellHeight), isPure: isPure)
-                    contentView.tag = newsViewTag
-                    contentView.updateView(newsModel: newsModel)
-                    cell.contentView.addSubview(contentView)
-                }
-            }
-            return cell
-        }
-    }
-    
-    internal func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-//        delegate?.didTableViewCellSelected(index: indexPath.row, isBanner: false)
     }
 }
 
