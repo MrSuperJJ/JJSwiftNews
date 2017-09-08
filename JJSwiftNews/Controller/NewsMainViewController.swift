@@ -84,30 +84,40 @@ class NewsMainViewController: UIViewController {
                 return self.newsTopicArray[index]["type"]!
             })
             newsViewModel = NewsViewModel(input: currentTopicType, dependency: NewsMoyaService.defaultService)
-            newsViewModel.currentTopicTypeChanged.asObservable().subscribe(onNext: { (bannerModelArray, newsModelArray) in
+            newsViewModel.currentTopicTypeChanged.asObservable().subscribe(onNext: { [unowned self] (bannerModelArray, newsModelArray) in
+                self.bannerModelArray = bannerModelArray
                 contentScrollView.stopPullToRefresh()
             }).disposed(by: disposeBag)
             currNewsTypeIndex.asObservable().map({
                 return contentScrollView.viewWithTag($0.tagByAddingOffset) as! UITableView
             }).bind(to: currNewsTableView).disposed(by: disposeBag)
             newsViewModel.currentTopicTypeChanged.asObservable().map({
-                return [SectionOfNews(items: $0.0), SectionOfNews(items: $0.1)]
+                return [SectionOfNews(items: [$0.0]), SectionOfNews(items: $0.1)]
             }).bind(to: currNewsTableView.value.rx.items(dataSource: newsDataSource)).disposed(by: disposeBag)
             
-            newsDataSource.configureCell = { (section, tableView, indexPath, element) in
+            newsDataSource.configureCell = { [unowned self] (section, tableView, indexPath, element) in
                 switch indexPath.section {
                 case 0:
                     let cell = tableView.dequeueReusableCell(withIdentifier: topCellReuseIdentifier, for: indexPath)
+                    let bannerView = cell.viewWithTag(newsViewTag) as? JJNewsBannerView
+                    if let bannerView = bannerView {
+                        bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
+                    } else {
+                        let bannerView = JJNewsBannerView(frame: CGRect(x: 0, y:0, width:cell.width, height: topCellHeight))
+                        bannerView.shouldScrollAutomatically = true
+                        bannerView.tag = newsViewTag
+                        cell.contentView.addSubview(bannerView)
+                    }
                     return cell
                 case 1:
-                    let isPure = element.isPure
+                    let isPure = (element as! NewsModelType).isPure
                     let cellReuseIdentifiter = isPure ? norPureTextCellReuseIdentifier : norImageTextCellReuseIdentifier
                     let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifiter, for: indexPath)
                     let contentView = cell.viewWithTag(newsViewTag) as? JJNewsContentView
                     if let contentView = contentView {
                         contentView.updateView(newsModel: element as! NewsModelType)
                     } else {
-                        let contentView = JJNewsContentView(frame: CGRect(x: 0, y:0, width:ScreenWidth, height: norCellHeight), isPure: isPure)
+                        let contentView = JJNewsContentView(frame: CGRect(x: 0, y:0, width:cell.width, height: norCellHeight), isPure: isPure)
                         contentView.tag = newsViewTag
                         contentView.updateView(newsModel: element as! NewsModelType)
                         cell.contentView.addSubview(contentView)
@@ -120,8 +130,8 @@ class NewsMainViewController: UIViewController {
             
             currNewsTableView.value.rx.itemSelected.map { indexPath in
                     return (indexPath, newsDataSource[indexPath])
-                }.subscribe(onNext: { [unowned self] indexPath, model in
-                    self.openNewsDetailViewController(indexPath: indexPath, newsModel: model)
+                }.subscribe(onNext: { [unowned self] indexPath, element in
+//                    self.openNewsDetailViewController(indexPath: indexPath, element: element)
                 }).disposed(by: disposeBag)
             
             currNewsTableView.value.rx.setDelegate(self).disposed(by: disposeBag)
@@ -153,26 +163,27 @@ class NewsMainViewController: UIViewController {
 extension NewsMainViewController: UITableViewDelegate {
 
     internal func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return CGFloat( indexPath.section == 0 ? topCellHeight : norCellHeight)
+        return CGFloat(indexPath.section == 0 ? topCellHeight : norCellHeight)
     }
     
     internal func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
     
-    fileprivate func openNewsDetailViewController(indexPath: IndexPath, newsModel: NewsType) {
-        let newsDetailController = JJWebViewController()
-        newsDetailController.requestURLPath = newsModel.url
-        self.navigationController?.pushViewController(newsDetailController, animated: true)
-        // 更新已读状态
-        var readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) ?? [String : Bool]()
-        readedNewsDict["\(newsModel.uniquekey)"] = true
-        UserDefaults.standard.set(readedNewsDict, forKey: kReadedNewsKey)
-        UserDefaults.standard.synchronize()
-        if indexPath.section == 1, let contentScrollView = self.bodyScrollView {
-            contentScrollView.refreshTabaleCellReadedState(index: indexPath.row, isBanner: false)
-        }
-    }
+//    fileprivate func openNewsDetailViewController(indexPath: IndexPath, element: Any) {
+//        let newsModel = indexPath.section == 0 ? (element as! [BannerModelType])[indexPath.row] : (element as! NewsModelType)
+//        let newsDetailController = JJWebViewController()
+//        newsDetailController.requestURLPath = newsModel.url
+//        self.navigationController?.pushViewController(newsDetailController, animated: true)
+//        // 更新已读状态
+//        var readedNewsDict = UserDefaults.standard.dictionary(forKey: kReadedNewsKey) ?? [String : Bool]()
+//        readedNewsDict["\(newsModel.uniquekey)"] = true
+//        UserDefaults.standard.set(readedNewsDict, forKey: kReadedNewsKey)
+//        UserDefaults.standard.synchronize()
+//        if indexPath.section == 1, let contentScrollView = self.bodyScrollView {
+//            contentScrollView.refreshTabaleCellReadedState(index: indexPath.row, isBanner: false)
+//        }
+//    }
 }
 
 // MARK: - 从后台进入前台，更新数据

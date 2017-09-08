@@ -14,7 +14,7 @@ struct SectionOfNews {
 }
 
 extension SectionOfNews: SectionModelType {
-    typealias Item = NewsType
+    typealias Item = Any
     
     init(original: SectionOfNews, items: [Item]) {
         self = original
