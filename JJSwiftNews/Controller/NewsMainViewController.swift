@@ -84,8 +84,7 @@ class NewsMainViewController: UIViewController {
                 return self.newsTopicArray[index]["type"]!
             })
             newsViewModel = NewsViewModel(input: currentTopicType, dependency: NewsMoyaService.defaultService)
-            newsViewModel.currentTopicTypeChanged.asObservable().subscribe(onNext: { [unowned self] (bannerModelArray, newsModelArray) in
-                self.bannerModelArray = bannerModelArray
+            newsViewModel.currentTopicTypeChanged.asObservable().subscribe(onNext: { (bannerModelArray, newsModelArray) in
                 contentScrollView.stopPullToRefresh()
             }).disposed(by: disposeBag)
             currNewsTypeIndex.asObservable().map({
@@ -95,7 +94,7 @@ class NewsMainViewController: UIViewController {
                 return [SectionOfNews(items: [$0.0]), SectionOfNews(items: $0.1)]
             }).bind(to: currNewsTableView.value.rx.items(dataSource: newsDataSource)).disposed(by: disposeBag)
             
-            newsDataSource.configureCell = { [unowned self] (section, tableView, indexPath, element) in
+            newsDataSource.configureCell = { (section, tableView, indexPath, element) in
                 switch indexPath.section {
                 case 0:
                     let cell = tableView.dequeueReusableCell(withIdentifier: topCellReuseIdentifier, for: indexPath)
@@ -104,7 +103,7 @@ class NewsMainViewController: UIViewController {
                         bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
                     } else {
                         let bannerView = JJNewsBannerView(frame: CGRect(x: 0, y:0, width:cell.width, height: topCellHeight))
-                        bannerView.shouldScrollAutomatically = true
+                        bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
                         bannerView.tag = newsViewTag
                         cell.contentView.addSubview(bannerView)
                     }

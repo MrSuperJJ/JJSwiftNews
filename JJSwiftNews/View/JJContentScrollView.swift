@@ -141,8 +141,6 @@ class JJContentScrollView: UIView {
         for index in 0 ..< tableViewCount {
             let contentView = UITableView(frame: CGRect(x: CGFloat(index) * self.width , y: 0, width: self.width, height: self.height))
             contentView.tag = index.tagByAddingOffset
-//            contentView.delegate = self
-//            contentView.dataSource = self
             contentView.separatorStyle = .none
             contentView.register(UITableViewCell.self, forCellReuseIdentifier: topCellReuseIdentifier)
             contentView.register(UITableViewCell.self, forCellReuseIdentifier: norPureTextCellReuseIdentifier)
