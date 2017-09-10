@@ -131,7 +131,7 @@ class JJContentScrollView: UIView {
     }
 
     // 设置内容
-    public func setupScrollView(tableViewCount: Int) {
+    public func setupScrollView(tableViewCount: Int, bind: (Int, UITableView) -> Void) {
         guard tableViewCount > 0 else {
             return
         }
@@ -166,6 +166,7 @@ class JJContentScrollView: UIView {
             })!
             refreshFooter.setTitle("", for: .idle)
             contentView.mj_footer = refreshFooter
+            bind(index, contentView)
         }
         self.addSubview(contentScrollView)
 
