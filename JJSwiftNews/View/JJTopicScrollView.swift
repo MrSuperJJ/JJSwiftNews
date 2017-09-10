@@ -38,6 +38,8 @@ class JJTopicScrollView: UIView {
     private var topicViewWidth: CGFloat                                // 每个topicView宽度
     private var lastTopicViewTag: Int                                  // 最近一次选中topicView的Tag
     private var dataSourceArray: Array<String>?
+
+    private var currTopicViewIndex = Variable(0)
     
     // MARK: - Life Cycle
     init(frame: CGRect, topicViewWidth: CGFloat) {
@@ -68,8 +70,9 @@ class JJTopicScrollView: UIView {
             topicView.setTitleColor(index == 0 ? UIColor(valueRGB: 0x4285f4, alpha: 1) : UIColor(valueRGB: 0x999999, alpha: 1), for: .normal)
             topicView.titleLabel?.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
             topicView.tag = index.tagByAddingOffset
-            topicView.rx.tap.asObservable().subscribe(onNext: {
-                currNewsTypeIndex.value = topicView.tag.indexByRemovingOffset
+            // 重复点击同一主题，不刷新页面
+            topicView.rx.tap.asObservable().subscribe(onNext: { [unowned self] in
+                self.currTopicViewIndex.value = topicView.tag.indexByRemovingOffset
             }).disposed(by: disposeBag)
             topicScrollView.addSubview(topicView)
         }
@@ -77,6 +80,8 @@ class JJTopicScrollView: UIView {
         self.addSubview(topicScrollView)
         topicScrollView.addSubview(selectedBottomLine)
         self.addSubview(bottomLine)
+
+        currTopicViewIndex.asObservable().distinctUntilChanged().bind(to: currNewsTypeIndex).disposed(by: disposeBag)
     }
     
     /// 切换资讯TopicView

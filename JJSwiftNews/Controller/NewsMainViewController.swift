@@ -27,8 +27,8 @@ fileprivate let topCellHeight = CGFloat(adValue: 162)
 fileprivate let norCellHeight = CGFloat(adValue: 76)
 // MVVM
 var currNewsTypeIndex = Variable(0)      ///<当前资讯类型的索引
-var tableViewDataDispose: Disposable?
-var tableViewDataArray: [Variable<[SectionOfNews]>] = [Variable<[SectionOfNews]>]()
+//var tableViewDataDispose: Disposable?
+var tableViewDataArray = [Variable<[SectionOfNews]>]()
 let newsDataSource = RxTableViewSectionedReloadDataSource<SectionOfNews>()
 
 class NewsMainViewController: UIViewController {
@@ -120,10 +120,10 @@ class NewsMainViewController: UIViewController {
         
         // MARK: MVVM
         if let topicScrollView = self.topicScrollView, let contentScrollView = self.bodyScrollView {
-            let currentTopicType = currNewsTypeIndex.asObservable().distinctUntilChanged().do(onNext: { (index) in
+            let currentTopicType = currNewsTypeIndex.asObservable().do(onNext: { (index) in
                 topicScrollView.switchToSelectedTopicView(of: index)
                 contentScrollView.switchToSelectedContentView(of: index)
-                tableViewDataDispose?.dispose() ///<释放上一个TableView绑定的资源
+//                tableViewDataDispose?.dispose() ///<释放上一个TableView绑定的资源
             }).map({ [unowned self] index in
                 return self.newsTopicArray[index]["type"]!
             })
@@ -132,7 +132,8 @@ class NewsMainViewController: UIViewController {
                 return (index, [SectionOfNews(items: [tuple.0]), SectionOfNews(items: tuple.1)])
             }).subscribe(onNext: { (index, array) in
                 contentScrollView.stopPullToRefresh()
-                tableViewDataDispose = Observable.just(array).bind(to: tableViewDataArray[index])
+//                tableViewDataDispose = Observable.just(array).bind(to: tableViewDataArray[index])
+                tableViewDataArray[index].value = array
             }).disposed(by: disposeBag)
         }
     }
