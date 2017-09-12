@@ -17,17 +17,11 @@ import RxDataSources
 var disposeBag = DisposeBag()
 
 let kReadedNewsKey = "ReadedNewsDictKey"
-var currTopicType = ""                   // 当前选择的TopicType
-let newsViewTag = 0.tagByAddingOffset
-
+let newsViewTag = 0.tagByAddingOffset                                        ///<NewsViewTag
 let topCellReuseIdentifier = "TopCellReuseIdentifier"                        ///<置顶Cell
 let norPureTextCellReuseIdentifier = "NorPureTextCellReuseIdentifier"        ///<普通Cell-文本
 let norImageTextCellReuseIdentifier = "NorImageTextCellReuseIdentifier"      ///<普通Cell-图文
-fileprivate let topCellHeight = CGFloat(adValue: 162)
-fileprivate let norCellHeight = CGFloat(adValue: 76)
-// MVVM
-var currNewsTypeIndex = Variable(0)      ///<当前资讯类型的索引
-//var tableViewDataDispose: Disposable?
+var currNewsTypeIndex = Variable(0)                                          ///<当前资讯类型的索引
 var tableViewDataArray = [Variable<[SectionOfNews]>]()
 let newsDataSource = RxTableViewSectionedReloadDataSource<SectionOfNews>()
 
@@ -51,7 +45,10 @@ class NewsMainViewController: UIViewController {
     fileprivate var bannerModelArray = [BannerModelType]()
     fileprivate var newsModelArray   = [NewsModelType]()
     fileprivate var lastNewsUniqueKey = ""               // 最后一条资讯的uniquekey
-    // MARK: MVVM
+    // TableView
+    fileprivate let topCellHeight = CGFloat(adValue: 162)
+    fileprivate let norCellHeight = CGFloat(adValue: 76)
+    // ViewModel
     fileprivate var newsViewModel: NewsViewModel!
 
     // MARK: - Life Cycle
@@ -69,72 +66,36 @@ class NewsMainViewController: UIViewController {
             
             bodyScrollView = JJContentScrollView(frame: CGRect(x: 0, y: topicScrollView.bottom, width: ScreenWidth, height: ScreenHeight - NavBarHeight))
             if let contentScrollView = bodyScrollView {
-                newsDataSource.configureCell = { (section, tableView, indexPath, element) in
-                    switch indexPath.section {
-                    case 0:
-                        let cell = tableView.dequeueReusableCell(withIdentifier: topCellReuseIdentifier, for: indexPath)
-                        let bannerView = cell.viewWithTag(newsViewTag) as? JJNewsBannerView
-                        if let bannerView = bannerView {
-                            bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
-                        } else {
-                            let bannerView = JJNewsBannerView(frame: CGRect(x: 0, y:0, width:cell.width, height: topCellHeight))
-                            bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
-                            bannerView.tag = newsViewTag
-                            cell.contentView.addSubview(bannerView)
-                        }
-                        return cell
-                    case 1:
-                        let isPure = (element as! NewsModelType).isPure
-                        let cellReuseIdentifiter = isPure ? norPureTextCellReuseIdentifier : norImageTextCellReuseIdentifier
-                        let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifiter, for: indexPath)
-                        let contentView = cell.viewWithTag(newsViewTag) as? JJNewsContentView
-                        if let contentView = contentView {
-                            contentView.updateView(newsModel: element as! NewsModelType)
-                        } else {
-                            let contentView = JJNewsContentView(frame: CGRect(x: 0, y:0, width:cell.width, height: norCellHeight), isPure: isPure)
-                            contentView.tag = newsViewTag
-                            contentView.updateView(newsModel: element as! NewsModelType)
-                            cell.contentView.addSubview(contentView)
-                        }
-                        return cell
-                    default:
-                        return tableView.dequeueReusableCell(withIdentifier: "norImageTextCellReuseIdentifier")!
-                    }
-                }
-                contentScrollView.setupScrollView(tableViewCount: topicNameArray.count, bind: {
-                    tableViewDataArray.append(Variable([SectionOfNews(items: [])]))
-                    tableViewDataArray[$0].asObservable().bind(to: $1.rx.items(dataSource: newsDataSource)).disposed(by: disposeBag)
-                    $1.rx.itemSelected.map { indexPath in
+                let currentTopicType = currNewsTypeIndex.asObservable().do(onNext: { (index) in
+                    topicScrollView.switchToSelectedTopicView(of: index)
+                    contentScrollView.switchToSelectedContentView(of: index)
+                    //                tableViewDataDispose?.dispose() ///<释放上一个TableView绑定的资源
+                }).map({ [unowned self] index in
+                    return self.newsTopicArray[index]["type"]!
+                })
+                newsViewModel = NewsViewModel(input: currentTopicType, dependency: NewsMoyaService.defaultService)
+                Observable.zip(currNewsTypeIndex.asObservable(), newsViewModel.currentTopicTypeChanged.asObservable(), resultSelector: { (index, tuple) in
+                    return (index, [SectionOfNews(items: [tuple.0]), SectionOfNews(items: tuple.1)])
+                }).subscribe(onNext: { (index, array) in
+                    contentScrollView.stopPullToRefresh()
+                    //                tableViewDataDispose = Observable.just(array).bind(to: tableViewDataArray[index])
+                    tableViewDataArray[index].value = array
+                }).disposed(by: disposeBag)
+                configureTableViewDataSource()
+                contentScrollView.setupScrollView(tableViewCount: topicNameArray.count, bind: { index, tableView in
+                    tableViewDataArray.append(Variable([]))
+                    tableViewDataArray[index].asObservable().bind(to: tableView.rx.items(dataSource: newsDataSource)).disposed(by: disposeBag)
+                    tableView.rx.itemSelected.map { indexPath in
                         return (indexPath, newsDataSource[indexPath])
                         }.subscribe(onNext: { [unowned self] indexPath, element in
+                            tableView.deselectRow(at: indexPath, animated: true)
                             let newsModel = indexPath.section == 0 ? (element as! [BannerModelType])[indexPath.row] as! NewsModelType : element as! NewsModelType
                             self.openNewsDetailViewController(indexPath: indexPath, newsModel: newsModel)
                         }).disposed(by: disposeBag)
-                    $1.rx.setDelegate(self).disposed(by: disposeBag)
+                    tableView.rx.setDelegate(self).disposed(by: disposeBag)
                 })
                 self.view.addSubview(contentScrollView)
             }
-        }
-        
-        NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive(ntf:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
-        
-        // MARK: MVVM
-        if let topicScrollView = self.topicScrollView, let contentScrollView = self.bodyScrollView {
-            let currentTopicType = currNewsTypeIndex.asObservable().do(onNext: { (index) in
-                topicScrollView.switchToSelectedTopicView(of: index)
-                contentScrollView.switchToSelectedContentView(of: index)
-//                tableViewDataDispose?.dispose() ///<释放上一个TableView绑定的资源
-            }).map({ [unowned self] index in
-                return self.newsTopicArray[index]["type"]!
-            })
-            newsViewModel = NewsViewModel(input: currentTopicType, dependency: NewsMoyaService.defaultService)
-            Observable.zip(currNewsTypeIndex.asObservable(), newsViewModel.currentTopicTypeChanged.asObservable(), resultSelector: { (index, tuple) in
-                return (index, [SectionOfNews(items: [tuple.0]), SectionOfNews(items: tuple.1)])
-            }).subscribe(onNext: { (index, array) in
-                contentScrollView.stopPullToRefresh()
-//                tableViewDataDispose = Observable.just(array).bind(to: tableViewDataArray[index])
-                tableViewDataArray[index].value = array
-            }).disposed(by: disposeBag)
         }
     }
     
@@ -166,10 +127,6 @@ extension NewsMainViewController: UITableViewDelegate {
         return CGFloat(indexPath.section == 0 ? topCellHeight : norCellHeight)
     }
     
-    internal func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-    }
-    
     fileprivate func openNewsDetailViewController(indexPath: IndexPath, newsModel: NewsModelType) {
         let newsDetailController = JJWebViewController()
         newsDetailController.requestURLPath = newsModel.url
@@ -185,13 +142,42 @@ extension NewsMainViewController: UITableViewDelegate {
     }
 }
 
-// MARK: - 从后台进入前台，更新数据
+// MARK: - RxTableViewSectionedReloadDataSource
 extension NewsMainViewController {
-    
-    @objc fileprivate func applicationDidBecomeActive(ntf: Notification) {
-//        if let contentScrollView = bodyScrollView {
-//            contentScrollView.startPullToRefresh()
-//        }
+
+    func configureTableViewDataSource() {
+        newsDataSource.configureCell = { (section, tableView, indexPath, element) in
+//            print(tableView.tag)
+            switch indexPath.section {
+            case 0:
+                let cell = tableView.dequeueReusableCell(withIdentifier: topCellReuseIdentifier, for: indexPath)
+                let bannerView = cell.viewWithTag(newsViewTag) as? JJNewsBannerView
+                if let bannerView = bannerView {
+                    bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
+                } else {
+                    let bannerView = JJNewsBannerView(frame: CGRect(x: 0, y:0, width:cell.width, height: self.topCellHeight))
+                    bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
+                    bannerView.tag = newsViewTag
+                    cell.contentView.addSubview(bannerView)
+                }
+                return cell
+            case 1:
+                let isPure = (element as! NewsModelType).isPure
+                let cellReuseIdentifiter = isPure ? norPureTextCellReuseIdentifier : norImageTextCellReuseIdentifier
+                let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifiter, for: indexPath)
+                let contentView = cell.viewWithTag(newsViewTag) as? JJNewsContentView
+                if let contentView = contentView {
+                    contentView.updateView(newsModel: element as! NewsModelType)
+                } else {
+                    let contentView = JJNewsContentView(frame: CGRect(x: 0, y:0, width:cell.width, height: self.norCellHeight), isPure: isPure)
+                    contentView.tag = newsViewTag
+                    contentView.updateView(newsModel: element as! NewsModelType)
+                    cell.contentView.addSubview(contentView)
+                }
+                return cell
+            default:
+                return tableView.dequeueReusableCell(withIdentifier: "Cell")!
+            }
+        }
     }
 }
-
