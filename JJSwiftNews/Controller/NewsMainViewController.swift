@@ -47,7 +47,7 @@ class NewsMainViewController: UIViewController {
     fileprivate let norCellHeight = CGFloat(adValue: 76)
     // ViewModel
     fileprivate var newsViewModel: NewsViewModel!                                            ///<ViewModel
-    fileprivate let newsDataSource = RxTableViewSectionedReloadDataSource<SectionOfNews>()   ///<RxTableViewDataSource
+    fileprivate var newsDataSources = [RxTableViewSectionedReloadDataSource<SectionOfNews>]()   ///<RxTableViewDataSource
     private var tableViewDataArray = [Variable<[SectionOfNews]>]()                           ///<TableViewData数组
 
     // MARK: - Life Cycle
@@ -63,13 +63,14 @@ class NewsMainViewController: UIViewController {
         // 设置NewsContentScrollView
         bodyScrollView = NewsContentScrollView(frame: CGRect(x: 0, y: topicScrollView.bottom, width: ScreenWidth, height: ScreenHeight - NavBarHeight))
         guard let contentScrollView = bodyScrollView else { return }
-        configureTableViewDataSource()
         contentScrollView.setupScrollView(tableViewCount: newsTopicArray.count, bind: { index, tableView in
             tableViewDataArray.append(Variable([]))
-            tableViewDataArray[index].asObservable().bind(to: tableView.rx.items(dataSource: newsDataSource)).disposed(by: disposeBag)
+            newsDataSources.append(RxTableViewSectionedReloadDataSource<SectionOfNews>())
+            configureTableViewDataSource(newsDataSources[index])
+            tableViewDataArray[index].asObservable().bind(to: tableView.rx.items(dataSource: newsDataSources[index])).disposed(by: disposeBag)
             tableView.rx.itemSelected
                 .map { [unowned self] indexPath in
-                    return (indexPath, self.newsDataSource[indexPath])
+                    return (indexPath, self.newsDataSources[index][indexPath])
                 }
                 .subscribe(onNext: { [unowned self] indexPath, element in
                     tableView.deselectRow(at: indexPath, animated: true)
@@ -163,17 +164,17 @@ extension NewsMainViewController: UITableViewDelegate {
 // MARK: - RxTableViewSectionedReloadDataSource
 extension NewsMainViewController {
 
-    func configureTableViewDataSource() {
+    func configureTableViewDataSource(_ newsDataSource: RxTableViewSectionedReloadDataSource<SectionOfNews>) {
         newsDataSource.configureCell = { (section, tableView, indexPath, element) in
 //            print(tableView.tag)
             switch indexPath.section {
             case 0:
                 let cell = tableView.dequeueReusableCell(withIdentifier: topCellReuseIdentifier, for: indexPath)
-                let bannerView = cell.viewWithTag(newsViewTag) as? JJNewsBannerView
+                let bannerView = cell.viewWithTag(newsViewTag) as? NewsBannerView
                 if let bannerView = bannerView {
                     bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
                 } else {
-                    let bannerView = JJNewsBannerView(frame: CGRect(x: 0, y:0, width:cell.width, height: self.topCellHeight))
+                    let bannerView = NewsBannerView(frame: CGRect(x: 0, y:0, width:cell.width, height: self.topCellHeight))
                     bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
                     bannerView.tag = newsViewTag
                     cell.contentView.addSubview(bannerView)
@@ -183,11 +184,11 @@ extension NewsMainViewController {
                 let isPure = (element as! NewsModelType).isPure
                 let cellReuseIdentifiter = isPure ? norPureTextCellReuseIdentifier : norImageTextCellReuseIdentifier
                 let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifiter, for: indexPath)
-                let contentView = cell.viewWithTag(newsViewTag) as? JJNewsContentView
+                let contentView = cell.viewWithTag(newsViewTag) as? NewsContentView
                 if let contentView = contentView {
                     contentView.updateView(newsModel: element as! NewsModelType)
                 } else {
-                    let contentView = JJNewsContentView(frame: CGRect(x: 0, y:0, width:cell.width, height: self.norCellHeight), isPure: isPure)
+                    let contentView = NewsContentView(frame: CGRect(x: 0, y:0, width:cell.width, height: self.norCellHeight), isPure: isPure)
                     contentView.tag = newsViewTag
                     contentView.updateView(newsModel: element as! NewsModelType)
                     cell.contentView.addSubview(contentView)

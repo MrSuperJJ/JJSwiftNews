@@ -1,5 +1,5 @@
 //
-//  JJErrorRetryView.swift
+//  NewsErrorRetryView.swift
 //  JJSwiftDemo
 //
 //  Created by Mr.JJ on 2017/5/29.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class JJErrorRetryView: UIView {
+class NewsErrorRetryView: UIView {
 
     private let noNetImageView: UIImageView
     private let errorLabel: UILabel

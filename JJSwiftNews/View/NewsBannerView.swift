@@ -1,5 +1,5 @@
 //
-//  JJNewsBannerView.swift
+//  NewsBannerView.swift
 //  e企_2015
 //
 //  Created by yejiajun on 2017/6/9.
@@ -11,7 +11,7 @@ import SwiftyJSON
 import SDWebImage
 import SnapKit
 
-class JJNewsBannerView: JJBannerView {
+class NewsBannerView: JJBannerView {
     
     // MARK:- 设置PageController的Frame
     override func setupBannerPageControllerFrame(bannerScrollView: UIScrollView, bannerPageController: UIPageControl, bannerViewCount: Int) {

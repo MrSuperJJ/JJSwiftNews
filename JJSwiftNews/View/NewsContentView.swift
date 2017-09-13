@@ -1,5 +1,5 @@
 //
-//  JJNewsContentView.swift
+//  NewsContentView.swift
 //  JJSwiftDemo
 //
 //  Created by yejiajun on 2017/5/27.
@@ -10,7 +10,7 @@ import UIKit
 import SwiftyJSON
 import SnapKit
 
-class JJNewsContentView: UIView {
+class NewsContentView: UIView {
     
     // MARK: - Properties
     /// 资讯图片视图

@@ -39,7 +39,7 @@ class JJWebViewController: UIViewController {
 
     internal var requestURLPath: String?
     
-    private var errorRetryView: JJErrorRetryView?
+    private var errorRetryView: NewsErrorRetryView?
 
     // MARK: - Life Cycle
     override func viewDidLoad() {
@@ -54,15 +54,15 @@ class JJWebViewController: UIViewController {
         if isNetworkReachable {
             requestURL()
         } else {
-            self.errorRetryView = JJErrorRetryView(frame: CGRect(x: 0, y: 0, width: self.view.width, height: self.view.height))
-            if let errorRetryView = self.errorRetryView {
-                errorRetryView.backgroundColor = UIColor.white
-                self.view.addSubview(errorRetryView)
+            self.errorRetryView = NewsErrorRetryView(frame: CGRect(x: 0, y: 0, width: self.view.width, height: self.view.height))
+            if let NewsErrorRetryView = self.errorRetryView {
+                NewsErrorRetryView.backgroundColor = UIColor.white
+                self.view.addSubview(NewsErrorRetryView)
                 
-                errorRetryView.show(errorMessage: "网络异常", retryClosure: { [unowned self] in
+                NewsErrorRetryView.show(errorMessage: "网络异常", retryClosure: { [unowned self] in
                     if self.isNetworkReachable {
                         self.requestURL()
-                        errorRetryView.hide()
+                        NewsErrorRetryView.hide()
                     }
                 })
             }

@@ -24,10 +24,10 @@ class NewsContentScrollView: UIView {
         return contentScrollView
     }()
 
-    private var errorRetryView: JJErrorRetryView?
+    private var errorRetryView: NewsErrorRetryView?
 
     private var currentTableView: UITableView? // 当前显示的TableView
-    private var currentBannerView: JJNewsBannerView?
+    private var currentBannerView: NewsBannerView?
     fileprivate let topCellHeight = CGFloat(adValue: 162)
     fileprivate let norCellHeight = CGFloat(adValue: 76)
     fileprivate var bannerModelArray = [BannerModelType]()
@@ -68,7 +68,7 @@ class NewsContentScrollView: UIView {
         currentTableView = contentScrollView.viewWithTag(index.tagByAddingOffset) as? UITableView
         if let currentTableView = self.currentTableView {
             let bannerIndexPath = IndexPath(row: 0, section: 0)
-            self.currentBannerView = currentTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? JJNewsBannerView
+            self.currentBannerView = currentTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? NewsBannerView
             currentTableView.mj_header.beginRefreshing()
         }
     }
@@ -99,7 +99,7 @@ class NewsContentScrollView: UIView {
         let lastTableView = contentScrollView.viewWithTag(lastContentViewTag) as? UITableView
         if let lastTableView = lastTableView {
             let bannerIndexPath = IndexPath(row: 0, section: 0)
-            let lastBannerView = lastTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? JJNewsBannerView
+            let lastBannerView = lastTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? NewsBannerView
             if let lastBannerView = lastBannerView {
                 lastBannerView.stopScroll()         // 停止上一个页面的Banner滚动
             }
@@ -176,7 +176,7 @@ class NewsContentScrollView: UIView {
         }
         self.addSubview(contentScrollView)
 
-        errorRetryView = JJErrorRetryView(frame: CGRect(x: 0, y: 0, width: self.width, height: self.height))
+        errorRetryView = NewsErrorRetryView(frame: CGRect(x: 0, y: 0, width: self.width, height: self.height))
         if let errorRetryView = self.errorRetryView {
             errorRetryView.backgroundColor = UIColor.white
             errorRetryView.hide()
@@ -186,7 +186,7 @@ class NewsContentScrollView: UIView {
     
 
     // 显示错误信息页面
-    internal func showErrorRetryView(errorMessage: String) {
+    internal func showNewsErrorRetryView(errorMessage: String) {
         if let errorRetryView = self.errorRetryView {
             errorRetryView.show(errorMessage: errorMessage, retryClosure: { [unowned self] in
 //                self.startPullToRefresh()
@@ -202,13 +202,5 @@ extension NewsContentScrollView: UIScrollViewDelegate {
         let index = Int(contentScrollView.contentOffset.x / self.width)
         currTopicViewIndex.onNext(index)
         startPullToRefresh(of: index)
-    }
-}
-
-// MARK: - JJBannerViewDelegate
-extension NewsContentScrollView: JJBannerViewDelegate {
-    
-    internal func didBannerViewClicked(index: Int) {
-//        delegate?.didTableViewCellSelected(index: index, isBanner: true)
     }
 }
