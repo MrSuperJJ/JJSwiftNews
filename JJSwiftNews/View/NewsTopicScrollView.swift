@@ -1,5 +1,5 @@
 //
-//  JJtopicScrollView.swift
+//  NewsTopicScrollView.swift
 //  JJSwiftDemo
 //
 //  Created by Mr.JJ on 2017/5/24.
@@ -9,8 +9,9 @@
 import UIKit
 // MVVM
 import RxSwift
+import RxCocoa
 
-class JJTopicScrollView: UIView {
+class NewsTopicScrollView: UIView {
 
     // MARK: - Properties
     private lazy var topicScrollView: UIScrollView = {
@@ -35,17 +36,13 @@ class JJTopicScrollView: UIView {
         return bottomLine
     }()
 
-    private var topicViewWidth: CGFloat                                // 每个topicView宽度
-    private var lastTopicViewTag: Int                                  // 最近一次选中topicView的Tag
-    private var dataSourceArray: Array<String>?
-
-    private var currTopicViewIndex = Variable(0)
+    internal var currTopicViewIndex = Variable(0)
+    private var lastTopicViewIndex = Variable(0)
     
     // MARK: - Life Cycle
-    init(frame: CGRect, topicViewWidth: CGFloat) {
-        self.topicViewWidth = topicViewWidth
-        self.lastTopicViewTag = 0.tagByAddingOffset
+    init(frame: CGRect, topicViewWidth: CGFloat, topicArray: [String]) {
         super.init(frame: frame)
+        setupScrollViewContents(topicViewWidth: topicViewWidth, topicArray: topicArray)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -53,26 +50,24 @@ class JJTopicScrollView: UIView {
     }
 
     // MARK: - 设置内容
-    public func setupScrollViewContents(dataSourceArray: Array<String>) {
-        guard dataSourceArray.count > 0 else {
-            return
-        }
-        self.dataSourceArray = dataSourceArray
+    private func setupScrollViewContents(topicViewWidth: CGFloat, topicArray: [String]) {
+        guard topicArray.count > 0 else { return }
         topicScrollView.frame = CGRect(x: 0, y: 0, width: self.width, height: self.height)
         selectedBottomLine.frame = CGRect(x: 0, y: self.height - 2, width: topicViewWidth, height: 2)
         bottomLine.frame = CGRect(x: 0, y: self.height - 0.5, width: ScreenWidth, height: 0.5)
-        topicScrollView.contentSize = CGSize(width: CGFloat(dataSourceArray.count) * topicViewWidth, height: 0)
+        topicScrollView.contentSize = CGSize(width: CGFloat(topicArray.count) * topicViewWidth, height: 0)
 
-        for (index, value) in dataSourceArray.enumerated() {
+        for (index, value) in topicArray.enumerated() {
             let topicView = UIButton(frame: CGRect(x: CGFloat(index) * topicViewWidth , y: 0, width: topicViewWidth, height: self.height))
             topicView.backgroundColor = UIColor.white
             topicView.setTitle(value, for: .normal)
             topicView.setTitleColor(index == 0 ? UIColor(valueRGB: 0x4285f4, alpha: 1) : UIColor(valueRGB: 0x999999, alpha: 1), for: .normal)
             topicView.titleLabel?.font = UIFont.systemFont(ofSize: CGFloat(adValue: 14))
             topicView.tag = index.tagByAddingOffset
-            // 重复点击同一主题，不刷新页面
             topicView.rx.tap.asObservable().subscribe(onNext: { [unowned self] in
-                self.currTopicViewIndex.value = topicView.tag.indexByRemovingOffset
+                let index = topicView.tag.indexByRemovingOffset
+                self.switchToSelectedTopicView(of: index)
+                self.currTopicViewIndex.value = index
             }).disposed(by: disposeBag)
             topicScrollView.addSubview(topicView)
         }
@@ -80,8 +75,6 @@ class JJTopicScrollView: UIView {
         self.addSubview(topicScrollView)
         topicScrollView.addSubview(selectedBottomLine)
         self.addSubview(bottomLine)
-
-        currTopicViewIndex.asObservable().distinctUntilChanged().bind(to: currNewsTypeIndex).disposed(by: disposeBag)
     }
     
     /// 切换资讯TopicView
@@ -89,11 +82,11 @@ class JJTopicScrollView: UIView {
     /// - Parameter index: Topic索引
     internal func switchToSelectedTopicView(of index: Int) {
         let currTopicViewTag = index.tagByAddingOffset
-        guard currTopicViewTag != self.lastTopicViewTag else { return }
-        let lastView = self.topicScrollView.viewWithTag(self.lastTopicViewTag) as? UIButton
+        let lastTopicViewTag = lastTopicViewIndex.value.tagByAddingOffset
+        let lastView = self.topicScrollView.viewWithTag(lastTopicViewTag) as? UIButton
         let currView = self.topicScrollView.viewWithTag(currTopicViewTag) as? UIButton
         guard let currentTopicView = currView, let lastTopicView = lastView else { return }
-        self.lastTopicViewTag = currTopicViewTag
+        lastTopicViewIndex.value = index
         lastTopicView.setTitleColor(UIColor(valueRGB: 0x999999, alpha: 1), for: .normal)
         currentTopicView.setTitleColor(UIColor(valueRGB: 0x4285f4, alpha: 1), for: .normal)
         UIView.animate(withDuration: 0.3) {
@@ -103,7 +96,7 @@ class JJTopicScrollView: UIView {
 }
 
 // MARK: - UIScrollViewDelegate
-extension JJTopicScrollView: UIScrollViewDelegate {
+extension NewsTopicScrollView: UIScrollViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         var contentOffset = scrollView.contentOffset

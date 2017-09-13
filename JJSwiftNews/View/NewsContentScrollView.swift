@@ -1,5 +1,5 @@
 //
-//  JJContentScrollView.swift
+//  NewsContentScrollView.swift
 //  JJSwiftDemo
 //
 //  Created by yejiajun on 2017/5/25.
@@ -11,7 +11,7 @@ import MJRefresh
 import RxSwift
 import RxCocoa
 
-class JJContentScrollView: UIView {
+class NewsContentScrollView: UIView {
     
     // MARK: - Properties
     fileprivate lazy var contentScrollView: UIScrollView = {
@@ -34,6 +34,8 @@ class JJContentScrollView: UIView {
     fileprivate var newsModelArray   = [NewsModelType]()
 
     private var lastContentViewTag: Int    // 上次选中的ContentView的Tag
+    internal var currTopicViewIndex = PublishSubject<Int>()
+    internal var currContentViewIndex = PublishSubject<Int>()
     
     // MARK: - Life Cycle
     override init(frame: CGRect) {
@@ -56,13 +58,13 @@ class JJContentScrollView: UIView {
     // TableView切换
     public func switchToSelectedContentView(of index: Int) {
         contentScrollView.setContentOffset(CGPoint(x: CGFloat(index) * self.width, y:0), animated: false)
-        startPullToRefresh()
+        startPullToRefresh(of: index)
     }
 
     // 开始下拉刷新（触发时机：1.初次加载，2.页面切换，3.点击错误页面按钮）
-    internal func startPullToRefresh() {
+    internal func startPullToRefresh(of index: Int) {
         resetLastTableViewState()
-        currentTableView = contentScrollView.viewWithTag(currNewsTypeIndex.value.tagByAddingOffset) as? UITableView
+        currentTableView = contentScrollView.viewWithTag(index.tagByAddingOffset) as? UITableView
         if let currentTableView = self.currentTableView {
             let bannerIndexPath = IndexPath(row: 0, section: 0)
             self.currentBannerView = currentTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? JJNewsBannerView
@@ -158,11 +160,12 @@ class JJContentScrollView: UIView {
                     errorRetryView.hide()
                 }
                 contentView.mj_footer.resetNoMoreData()
+                
+                self.updateContentIndex()
             })
 
             let refreshFooter = MJRefreshAutoNormalFooter(refreshingBlock: { [unowned self] in
-                // 通知代理对象请求数据
-                let index = Int(self.contentScrollView.contentOffset.x / self.width)
+//                self.updateContentIndex()
             })!
             refreshFooter.setTitle("", for: .idle)
             contentView.mj_footer = refreshFooter
@@ -177,29 +180,34 @@ class JJContentScrollView: UIView {
             self.addSubview(errorRetryView)
         }
     }
+    
+    private func updateContentIndex() {
+        let index = Int(self.contentScrollView.contentOffset.x / self.width)
+        self.currContentViewIndex.onNext(index)
+    }
 
     // 显示错误信息页面
     internal func showErrorRetryView(errorMessage: String) {
         if let errorRetryView = self.errorRetryView {
             errorRetryView.show(errorMessage: errorMessage, retryClosure: { [unowned self] in
-                self.startPullToRefresh()
+//                self.startPullToRefresh()
             })
         }
     }
 }
 
 // MARK: - UIScrollViewDelegate
-extension JJContentScrollView: UIScrollViewDelegate {
+extension NewsContentScrollView: UIScrollViewDelegate {
     
     internal func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let index = Int(contentScrollView.contentOffset.x / self.width)
-        currNewsTypeIndex.value = index
-        startPullToRefresh()
+        currTopicViewIndex.onNext(index)
+        startPullToRefresh(of: index)
     }
 }
 
 // MARK: - JJBannerViewDelegate
-extension JJContentScrollView: JJBannerViewDelegate {
+extension NewsContentScrollView: JJBannerViewDelegate {
     
     internal func didBannerViewClicked(index: Int) {
 //        delegate?.didTableViewCellSelected(index: index, isBanner: true)
