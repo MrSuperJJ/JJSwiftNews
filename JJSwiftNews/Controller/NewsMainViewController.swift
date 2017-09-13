@@ -21,7 +21,6 @@ let newsViewTag = 0.tagByAddingOffset                                        ///
 let topCellReuseIdentifier = "TopCellReuseIdentifier"                        ///<置顶Cell
 let norPureTextCellReuseIdentifier = "NorPureTextCellReuseIdentifier"        ///<普通Cell-文本
 let norImageTextCellReuseIdentifier = "NorImageTextCellReuseIdentifier"      ///<普通Cell-图文
-var tableViewDataArray = [Variable<[SectionOfNews]>]()
 
 class NewsMainViewController: UIViewController {
 
@@ -48,8 +47,8 @@ class NewsMainViewController: UIViewController {
     fileprivate let norCellHeight = CGFloat(adValue: 76)
     // ViewModel
     fileprivate var newsViewModel: NewsViewModel!                                            ///<ViewModel
-//    fileprivate var currNewsTypeIndex = Variable(0)                                          ///<当前资讯类型的索引，初始值为0
     fileprivate let newsDataSource = RxTableViewSectionedReloadDataSource<SectionOfNews>()   ///<RxTableViewDataSource
+    private var tableViewDataArray = [Variable<[SectionOfNews]>]()                           ///<TableViewData数组
 
     // MARK: - Life Cycle
     override func viewDidLoad() {
@@ -89,17 +88,32 @@ class NewsMainViewController: UIViewController {
             topicScrollView.switchToSelectedTopicView(of: $0)
         }).disposed(by: disposeBag)
         // 设置ViewModel
-        let currentTopicType = contentScrollView.currContentViewIndex.asObservable().map({ [unowned self] index in
+        let currTopicType = contentScrollView.currContentReLoad.asObservable().map({ [unowned self] index in
             return self.newsTopicArray[index]["type"]!
         })
-        newsViewModel = NewsViewModel(input: currentTopicType, dependency: NewsMoyaService.defaultService)
+        let lastTopicType = contentScrollView.currContentLoadMore.asObservable().map({ [unowned self] index in
+            return self.newsTopicArray[index]["type"]!
+        })
+        newsViewModel = NewsViewModel(input: (currTopicType: currTopicType, lastTopicType: lastTopicType), dependency: NewsMoyaService.defaultService)
         // 返回数据，更新UI
-        Observable.zip(contentScrollView.currContentViewIndex.asObservable(), newsViewModel.currentTopicTypeChanged.asObservable(), resultSelector: { (index, tuple) in
+        Observable.zip(contentScrollView.currContentReLoad.asObservable(), newsViewModel.newsContentReloadFinished.asObservable(), resultSelector: { (index, tuple) in
                 return (index, [SectionOfNews(items: [tuple.0]), SectionOfNews(items: tuple.1)])
-            })
-            .subscribe(onNext: { (index, array) in
+        })
+            .subscribe(onNext: { [unowned self] (index, array) in
                 contentScrollView.stopPullToRefresh()
-                tableViewDataArray[index].value = array
+                self.tableViewDataArray[index].value = array
+                self.lastNewsUniqueKey = (array.last!.items.last as! NewsModelType).uniquekey
+            }).disposed(by: disposeBag)
+        Observable.zip(contentScrollView.currContentLoadMore.asObservable(), newsViewModel.newsContentLoadMoreFinished.asObservable(), resultSelector: { (index, tuple) in
+            return (index, tuple.1)
+        })
+            .subscribe(onNext: { [unowned self] (index, newsArray) in
+                contentScrollView.stopLoadingMore()
+                newsArray.forEach({ model in
+                    self.tableViewDataArray[index].value[1].items += [model]
+                })
+                self.lastNewsUniqueKey = (newsArray.last!).uniquekey
+                print(self.tableViewDataArray[index].value[1].items.count)
             }).disposed(by: disposeBag)
     }
     

@@ -35,7 +35,8 @@ class NewsContentScrollView: UIView {
 
     private var lastContentViewTag: Int    // 上次选中的ContentView的Tag
     internal var currTopicViewIndex = PublishSubject<Int>()
-    internal var currContentViewIndex = PublishSubject<Int>()
+    internal var currContentReLoad = PublishSubject<Int>()
+    internal var currContentLoadMore = PublishSubject<Int>()
     
     // MARK: - Life Cycle
     override init(frame: CGRect) {
@@ -161,11 +162,13 @@ class NewsContentScrollView: UIView {
                 }
                 contentView.mj_footer.resetNoMoreData()
                 
-                self.updateContentIndex()
+                let index = Int(self.contentScrollView.contentOffset.x / self.width)
+                self.currContentReLoad.onNext(index)
             })
 
             let refreshFooter = MJRefreshAutoNormalFooter(refreshingBlock: { [unowned self] in
-//                self.updateContentIndex()
+                let index = Int(self.contentScrollView.contentOffset.x / self.width)
+                self.currContentLoadMore.onNext(index)
             })!
             refreshFooter.setTitle("", for: .idle)
             contentView.mj_footer = refreshFooter
@@ -181,10 +184,6 @@ class NewsContentScrollView: UIView {
         }
     }
     
-    private func updateContentIndex() {
-        let index = Int(self.contentScrollView.contentOffset.x / self.width)
-        self.currContentViewIndex.onNext(index)
-    }
 
     // 显示错误信息页面
     internal func showErrorRetryView(errorMessage: String) {

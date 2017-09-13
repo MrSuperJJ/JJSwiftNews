@@ -13,11 +13,15 @@ import RxCocoa
 struct NewsViewModel {
     
     private let newsService: NewsService
-    let currentTopicTypeChanged: NewsDataResultObservable
+    let newsContentReloadFinished: NewsDataResultObservable
+    let newsContentLoadMoreFinished: NewsDataResultObservable
 
-    init(input currentTopicType: Observable<String>, dependency newsService: NewsService) {
+    init(input: (currTopicType: Observable<String>, lastTopicType: Observable<String>), dependency newsService: NewsService) {
         self.newsService = newsService
-        currentTopicTypeChanged = currentTopicType.flatMapLatest { type in
+        newsContentReloadFinished = input.currTopicType.flatMapLatest { type in
+            return newsService.requestNewsData(of: type)
+        }
+        newsContentLoadMoreFinished = input.lastTopicType.flatMapLatest { type in
             return newsService.requestNewsData(of: type)
         }
     }
