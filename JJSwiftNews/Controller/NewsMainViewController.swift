@@ -55,7 +55,7 @@ class NewsMainViewController: UIViewController {
         super.viewDidLoad()
         self.title = "资讯"
         // 设置NewsTopicScrollView
-        let topicViewWidth = CGFloat(100)
+        let topicViewWidth = CGFloat(77)
 //        let topicViewWidth = ScreenWidth / CGFloat(newsTopicNameArray.count)
         topicScrollView = NewsTopicScrollView(frame: CGRect(x: 0, y: NavBarHeight, width: ScreenWidth, height: 50), topicViewWidth: topicViewWidth, topicArray: newsTopicArray.flatMap{ $0["topic"] })
         guard let topicScrollView = topicScrollView else { return }
@@ -114,7 +114,6 @@ class NewsMainViewController: UIViewController {
                     self.tableViewDataArray[index].value[1].items += [model]
                 })
                 self.lastNewsUniqueKey = (newsArray.last!).uniquekey
-                print(self.tableViewDataArray[index].value[1].items.count)
             }).disposed(by: disposeBag)
     }
     

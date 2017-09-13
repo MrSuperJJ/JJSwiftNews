@@ -91,6 +91,18 @@ class NewsTopicScrollView: UIView {
         currentTopicView.setTitleColor(UIColor(valueRGB: 0x4285f4, alpha: 1), for: .normal)
         UIView.animate(withDuration: 0.3) {
             self.selectedBottomLine.frame = CGRect(x: currentTopicView.left, y: currentTopicView.bottom - 2, width: currentTopicView.width, height: 2)
+            // topicScrollView根据index自动移动到合适位置
+            if index == 0 {
+                self.topicScrollView.contentOffset = .zero
+            } else {
+                let remain  = ScreenWidth.truncatingRemainder(dividingBy: currentTopicView.width)
+                let centerX = currentTopicView.left - remain
+                let canMove = currentTopicView.left > 0 && currentTopicView.left - remain + ScreenWidth <= self.topicScrollView.contentSize.width
+                if canMove {
+                    self.topicScrollView.contentOffset = CGPoint(x: centerX, y: 0)
+                }
+            }
+
         }
     }
 }
