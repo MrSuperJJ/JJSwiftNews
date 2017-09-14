@@ -154,7 +154,7 @@ extension JJBannerView: UIScrollViewDelegate {
     }
     
     internal func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        if  shouldScrollAutomatically == true {
+        if shouldScrollAutomatically == true {
             startScroll()   // 结束拖动时开始自动滚动
         }
     }
@@ -162,7 +162,7 @@ extension JJBannerView: UIScrollViewDelegate {
     // MARK: 定时器滚动
     internal func startScroll() {
         guard bannerViewCount > 1 else { return }
-        stopScroll()   // 先结束上一次的定时器
+//        stopScroll()   // 先结束上一次的定时器
         bannerScrollTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(scrollToNextPage), userInfo: nil, repeats: true)
     }
     

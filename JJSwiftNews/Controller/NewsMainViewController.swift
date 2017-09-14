@@ -176,6 +176,7 @@ extension NewsMainViewController {
                 } else {
                     let bannerView = NewsBannerView(frame: CGRect(x: 0, y:0, width:cell.width, height: self.topCellHeight))
                     bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
+                    bannerView.shouldScrollAutomatically = true
                     bannerView.tag = newsViewTag
                     cell.contentView.addSubview(bannerView)
                 }

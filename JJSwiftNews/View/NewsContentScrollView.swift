@@ -26,7 +26,6 @@ class NewsContentScrollView: UIView {
 
     private var errorRetryView: NewsErrorRetryView?
     private var currentTableView: UITableView?
-    private var currentBannerView: NewsBannerView?
 
     internal var currTopicViewIndex = PublishSubject<Int>()
     internal var currContentReLoad = PublishSubject<Int>()
@@ -44,8 +43,8 @@ class NewsContentScrollView: UIView {
     }
     
     deinit {
-        if let currentBannerView = currentBannerView {
-            currentBannerView.stopScroll()
+        if let currentTableView = currentTableView, let currentBannerView = currentTableView.cellForRow(at: IndexPath(row: 0, section: 0))?.viewWithTag(newsViewTag) as? NewsBannerView {
+            currentBannerView.startScroll()
         }
     }
     
@@ -62,8 +61,6 @@ class NewsContentScrollView: UIView {
     internal func startPullToRefresh(of index: Int) {
         currentTableView = contentScrollView.viewWithTag(index.tagByAddingOffset) as? UITableView
         if let currentTableView = self.currentTableView {
-            let bannerIndexPath = IndexPath(row: 0, section: 0)
-            self.currentBannerView = currentTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? NewsBannerView
             currentTableView.mj_header.beginRefreshing()
         }
     }
@@ -72,6 +69,13 @@ class NewsContentScrollView: UIView {
     internal func stopPullToRefresh() {
         if let currentTableView = currentTableView {
             currentTableView.mj_header.endRefreshing()
+            DispatchQueue.main.async { // TableView刷新后启动定时器
+                let currentBannerView = currentTableView.cellForRow(at: IndexPath(row: 0, section: 0))?.viewWithTag(newsViewTag) as? NewsBannerView
+                if let currentBannerView = currentBannerView , currentBannerView.shouldScrollAutomatically == true {
+                    currentBannerView.startScroll()
+                }
+            }
+
         }
     }
     
@@ -101,24 +105,6 @@ class NewsContentScrollView: UIView {
             lastTableView.mj_header.endRefreshing() // 停止上一个页面的下拉刷新
         }
     }
-
-    // 刷新TableView内容
-//    public func refreshTableView(bannerModelArray: [BannerModelType], newsModelArray: [NewsModelType], isPullToRefresh: Bool) {
-//        stopPullToRefresh()
-//        self.bannerModelArray = bannerModelArray
-//        self.newsModelArray = newsModelArray
-//        if let currentTableView = currentTableView {
-//            currentTableView.reloadData()
-//
-//            if isPullToRefresh == true { // 下拉刷新后开启计时器
-//                DispatchQueue.main.async { // TableView刷新后启动定时器
-//                    if let currentBannerView = self.currentBannerView , currentBannerView.shouldScrollAutomatically == true {
-//                        currentBannerView.startScroll()
-//                    }
-//                }
-//            }
-//        }
-//    }
     
     // 刷新TableViewCell已读状态
     public func refreshTabaleCellReadedState(index: Int, isBanner: Bool) {
@@ -148,8 +134,8 @@ class NewsContentScrollView: UIView {
             contentView.mj_header = MJRefreshNormalHeader(refreshingBlock: { 
                 [unowned self] in
                 // 停止banner页面滚动
-                if let bannerView = self.currentBannerView {
-                    bannerView.stopScroll()
+                if let currentTableView = self.currentTableView, let currentBannerView = currentTableView.cellForRow(at: IndexPath(row: 0, section: 0))?.viewWithTag(newsViewTag) as? NewsBannerView {
+                    currentBannerView.stopScroll()
                 }
                 // 隐藏错误信息页面
                 if let errorRetryView = self.errorRetryView {
