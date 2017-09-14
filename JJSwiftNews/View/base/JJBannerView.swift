@@ -177,7 +177,7 @@ extension JJBannerView: UIScrollViewDelegate {
     @objc private func scrollToNextPage() {
         currentBannerIndex += 1;
         bannerScrollView.setContentOffset(CGPoint(x: CGFloat(currentBannerIndex) * self.width, y: 0), animated: true)
-//        print(bannerScrollView.contentOffset)
+//        print(bannerScrollView)
     }
 }
 

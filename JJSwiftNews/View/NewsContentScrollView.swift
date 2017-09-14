@@ -25,7 +25,7 @@ class NewsContentScrollView: UIView {
     }()
 
     private var errorRetryView: NewsErrorRetryView?
-    private var currentTableView: UITableView?
+    private var currentTableView: NewsTableView?
 
     internal var currTopicViewIndex = PublishSubject<Int>()
     internal var currContentReLoad = PublishSubject<Int>()
@@ -43,8 +43,8 @@ class NewsContentScrollView: UIView {
     }
     
     deinit {
-        if let currentTableView = currentTableView, let currentBannerView = currentTableView.cellForRow(at: IndexPath(row: 0, section: 0))?.viewWithTag(newsViewTag) as? NewsBannerView {
-            currentBannerView.startScroll()
+        if let currBannerView = currentTableView?.bannerView {
+            currBannerView.stopScroll()
         }
     }
     
@@ -59,7 +59,7 @@ class NewsContentScrollView: UIView {
 
     // 开始下拉刷新（触发时机：1.初次加载，2.页面切换，3.点击错误页面按钮）
     internal func startPullToRefresh(of index: Int) {
-        currentTableView = contentScrollView.viewWithTag(index.tagByAddingOffset) as? UITableView
+        currentTableView = contentScrollView.viewWithTag(index.tagByAddingOffset) as? NewsTableView
         if let currentTableView = self.currentTableView {
             currentTableView.mj_header.beginRefreshing()
         }
@@ -70,12 +70,10 @@ class NewsContentScrollView: UIView {
         if let currentTableView = currentTableView {
             currentTableView.mj_header.endRefreshing()
             DispatchQueue.main.async { // TableView刷新后启动定时器
-                let currentBannerView = currentTableView.cellForRow(at: IndexPath(row: 0, section: 0))?.viewWithTag(newsViewTag) as? NewsBannerView
-                if let currentBannerView = currentBannerView , currentBannerView.shouldScrollAutomatically == true {
+                if let currentBannerView = currentTableView.bannerView , currentBannerView.shouldScrollAutomatically == true {
                     currentBannerView.startScroll()
                 }
             }
-
         }
     }
     
@@ -95,12 +93,10 @@ class NewsContentScrollView: UIView {
 
     // 重置上一个TableView的状态
     fileprivate func resetLastTableViewState() {
-        let lastTableView = contentScrollView.viewWithTag(lastTopicViewIndex.tagByAddingOffset) as? UITableView
+        let lastTableView = contentScrollView.viewWithTag(lastTopicViewIndex.tagByAddingOffset) as? NewsTableView
         if let lastTableView = lastTableView {
-            let bannerIndexPath = IndexPath(row: 0, section: 0)
-            let lastBannerView = lastTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? NewsBannerView
-            if let lastBannerView = lastBannerView {
-                lastBannerView.stopScroll()         // 停止上一个页面的Banner滚动
+            if let lastBannerView = lastTableView.bannerView {
+                lastBannerView.stopScroll()             // 停止上一个页面的Banner滚动
             }
             lastTableView.mj_header.endRefreshing() // 停止上一个页面的下拉刷新
         }
@@ -115,7 +111,7 @@ class NewsContentScrollView: UIView {
     }
 
     // 设置内容
-    public func setupScrollView(tableViewCount: Int, bind: (Int, UITableView) -> Void) {
+    public func setupScrollView(tableViewCount: Int, bind: (Int, NewsTableView) -> Void) {
         guard tableViewCount > 0 else {
             return
         }
@@ -123,7 +119,7 @@ class NewsContentScrollView: UIView {
         contentScrollView.contentSize = CGSize(width: CGFloat(tableViewCount) * self.width, height: 0)
         
         for index in 0 ..< tableViewCount {
-            let contentView = UITableView(frame: CGRect(x: CGFloat(index) * self.width , y: 0, width: self.width, height: self.height))
+            let contentView = NewsTableView(frame: CGRect(x: CGFloat(index) * self.width , y: 0, width: self.width, height: self.height))
             contentView.tag = index.tagByAddingOffset
             contentView.separatorStyle = .none
             contentView.register(UITableViewCell.self, forCellReuseIdentifier: topCellReuseIdentifier)
@@ -134,7 +130,7 @@ class NewsContentScrollView: UIView {
             contentView.mj_header = MJRefreshNormalHeader(refreshingBlock: { 
                 [unowned self] in
                 // 停止banner页面滚动
-                if let currentTableView = self.currentTableView, let currentBannerView = currentTableView.cellForRow(at: IndexPath(row: 0, section: 0))?.viewWithTag(newsViewTag) as? NewsBannerView {
+                if let currentBannerView = self.currentTableView?.bannerView{
                     currentBannerView.stopScroll()
                 }
                 // 隐藏错误信息页面

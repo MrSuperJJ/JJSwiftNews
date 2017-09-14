@@ -179,6 +179,9 @@ extension NewsMainViewController {
                     bannerView.shouldScrollAutomatically = true
                     bannerView.tag = newsViewTag
                     cell.contentView.addSubview(bannerView)
+                    if let tableView = tableView as? NewsTableView {
+                        tableView.bannerView = bannerView
+                    }
                 }
                 return cell
             case 1:
