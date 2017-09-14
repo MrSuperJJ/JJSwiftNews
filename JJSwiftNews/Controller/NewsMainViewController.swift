@@ -81,6 +81,7 @@ class NewsMainViewController: UIViewController {
             tableView.rx.setDelegate(self).disposed(by: disposeBag)
         })
         self.view.addSubview(contentScrollView)
+        contentScrollView.startPullToRefresh(of: 0)
         // 切换Topic
         topicScrollView.currTopicViewIndex.asObservable().distinctUntilChanged().subscribe(onNext: {
             contentScrollView.switchToSelectedContentView(of: $0)

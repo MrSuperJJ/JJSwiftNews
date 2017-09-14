@@ -36,8 +36,8 @@ class NewsTopicScrollView: UIView {
         return bottomLine
     }()
 
-    internal var currTopicViewIndex = Variable(0)
-    private var lastTopicViewIndex = Variable(0)
+    internal var currTopicViewIndex = PublishSubject<Int>()
+    private var lastTopicViewIndex = 0
     
     // MARK: - Life Cycle
     init(frame: CGRect, topicViewWidth: CGFloat, topicArray: [String]) {
@@ -67,7 +67,7 @@ class NewsTopicScrollView: UIView {
             topicView.rx.tap.asObservable().subscribe(onNext: { [unowned self] in
                 let index = topicView.tag.indexByRemovingOffset
                 self.switchToSelectedTopicView(of: index)
-                self.currTopicViewIndex.value = index
+                self.currTopicViewIndex.onNext(index)
             }).disposed(by: disposeBag)
             topicScrollView.addSubview(topicView)
         }
@@ -82,11 +82,11 @@ class NewsTopicScrollView: UIView {
     /// - Parameter index: Topic索引
     internal func switchToSelectedTopicView(of index: Int) {
         let currTopicViewTag = index.tagByAddingOffset
-        let lastTopicViewTag = lastTopicViewIndex.value.tagByAddingOffset
+        let lastTopicViewTag = lastTopicViewIndex.tagByAddingOffset
         let lastView = self.topicScrollView.viewWithTag(lastTopicViewTag) as? UIButton
         let currView = self.topicScrollView.viewWithTag(currTopicViewTag) as? UIButton
         guard let currentTopicView = currView, let lastTopicView = lastView else { return }
-        lastTopicViewIndex.value = index
+        lastTopicViewIndex = index
         lastTopicView.setTitleColor(UIColor(valueRGB: 0x999999, alpha: 1), for: .normal)
         currentTopicView.setTitleColor(UIColor(valueRGB: 0x4285f4, alpha: 1), for: .normal)
         UIView.animate(withDuration: 0.3) {

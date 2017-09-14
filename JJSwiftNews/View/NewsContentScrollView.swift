@@ -25,22 +25,16 @@ class NewsContentScrollView: UIView {
     }()
 
     private var errorRetryView: NewsErrorRetryView?
-
-    private var currentTableView: UITableView? // 当前显示的TableView
+    private var currentTableView: UITableView?
     private var currentBannerView: NewsBannerView?
-    fileprivate let topCellHeight = CGFloat(adValue: 162)
-    fileprivate let norCellHeight = CGFloat(adValue: 76)
-    fileprivate var bannerModelArray = [BannerModelType]()
-    fileprivate var newsModelArray   = [NewsModelType]()
 
-    private var lastContentViewTag: Int    // 上次选中的ContentView的Tag
     internal var currTopicViewIndex = PublishSubject<Int>()
     internal var currContentReLoad = PublishSubject<Int>()
     internal var currContentLoadMore = PublishSubject<Int>()
+    fileprivate var lastTopicViewIndex = 0
     
     // MARK: - Life Cycle
     override init(frame: CGRect) {
-        lastContentViewTag = 0
         super.init(frame: frame)
         self.backgroundColor = UIColor(valueRGB: 0xebebeb, alpha: 1)
     }
@@ -58,13 +52,14 @@ class NewsContentScrollView: UIView {
     // MARK: - Functions
     // TableView切换
     public func switchToSelectedContentView(of index: Int) {
+        lastTopicViewIndex = Int(contentScrollView.contentOffset.x / self.width)
         contentScrollView.setContentOffset(CGPoint(x: CGFloat(index) * self.width, y:0), animated: false)
+        resetLastTableViewState()
         startPullToRefresh(of: index)
     }
 
     // 开始下拉刷新（触发时机：1.初次加载，2.页面切换，3.点击错误页面按钮）
     internal func startPullToRefresh(of index: Int) {
-        resetLastTableViewState()
         currentTableView = contentScrollView.viewWithTag(index.tagByAddingOffset) as? UITableView
         if let currentTableView = self.currentTableView {
             let bannerIndexPath = IndexPath(row: 0, section: 0)
@@ -95,8 +90,8 @@ class NewsContentScrollView: UIView {
     }
 
     // 重置上一个TableView的状态
-    private func resetLastTableViewState() {
-        let lastTableView = contentScrollView.viewWithTag(lastContentViewTag) as? UITableView
+    fileprivate func resetLastTableViewState() {
+        let lastTableView = contentScrollView.viewWithTag(lastTopicViewIndex.tagByAddingOffset) as? UITableView
         if let lastTableView = lastTableView {
             let bannerIndexPath = IndexPath(row: 0, section: 0)
             let lastBannerView = lastTableView.cellForRow(at: bannerIndexPath)?.viewWithTag(newsViewTag) as? NewsBannerView
@@ -198,9 +193,15 @@ class NewsContentScrollView: UIView {
 // MARK: - UIScrollViewDelegate
 extension NewsContentScrollView: UIScrollViewDelegate {
     
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        lastTopicViewIndex = Int(scrollView.contentOffset.x / self.width)
+    }
+    
     internal func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let index = Int(contentScrollView.contentOffset.x / self.width)
+        if index == lastTopicViewIndex { return }
         currTopicViewIndex.onNext(index)
+        resetLastTableViewState()
         startPullToRefresh(of: index)
     }
 }
