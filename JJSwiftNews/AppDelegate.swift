@@ -24,7 +24,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window?.rootViewController = navigationController
         
         self.window?.makeKeyAndVisible()
-
+        
+        saveData()
         return true
     }
 
@@ -51,5 +52,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
 
+    // MARK: - Func
+    private func saveData() {
+        let newsTopicArray = [["topic": "头条", "type": "top"],
+                              ["topic": "社会", "type": "shehui"],
+                              ["topic": "国内", "type": "guonei"],
+                              ["topic": "国际", "type": "guoji"],
+                              ["topic": "娱乐", "type": "yule"],
+                              ["topic": "体育", "type": "tiyu"],
+                              ["topic": "军事", "type": "junshi"],
+                              ["topic": "科技", "type": "keji"],
+                              ["topic": "财经", "type": "caijing"],
+                              ["topic": "时尚", "type": "shishang"]]
+        UserDefaults.standard.set(newsTopicArray, forKey: "newsTopics")
+    }
 }
 

@@ -28,8 +28,8 @@ class NewsContentScrollView: UIView {
     private var currentTableView: NewsTableView?
 
     internal var currTopicViewIndex = PublishSubject<Int>()
-    internal var currContentReLoad = PublishSubject<Int>()
-    internal var currContentLoadMore = PublishSubject<Int>()
+    internal var currContentReLoadIndex = PublishSubject<Int>()
+    internal var currContentLoadMoreIndex = PublishSubject<Int>()
     fileprivate var lastTopicViewIndex = 0
     
     // MARK: - Life Cycle
@@ -140,12 +140,12 @@ class NewsContentScrollView: UIView {
                 contentView.mj_footer.resetNoMoreData()
                 
                 let index = Int(self.contentScrollView.contentOffset.x / self.width)
-                self.currContentReLoad.onNext(index)
+                self.currContentReLoadIndex.onNext(index)
             })
 
             let refreshFooter = MJRefreshAutoNormalFooter(refreshingBlock: { [unowned self] in
                 let index = Int(self.contentScrollView.contentOffset.x / self.width)
-                self.currContentLoadMore.onNext(index)
+                self.currContentLoadMoreIndex.onNext(index)
             })!
             refreshFooter.setTitle("", for: .idle)
             contentView.mj_footer = refreshFooter

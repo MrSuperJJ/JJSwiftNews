@@ -12,17 +12,35 @@ import RxCocoa
 
 struct NewsViewModel {
     
-    private let newsService: NewsService
-    let newsContentReloadFinished: NewsDataResultObservable
-    let newsContentLoadMoreFinished: NewsDataResultObservable
+    internal let newsTopicNameArray: Observable<[String]>
+    internal let newsContentReloadFinished: Observable<(Int, [SectionOfNews])>
+    internal let newsContentLoadMoreFinished:  Observable<(Int, [NewsModelType])>
 
-    init(input: (currTopicType: Observable<String>, lastTopicType: Observable<String>), dependency newsService: NewsService) {
-        self.newsService = newsService
-        newsContentReloadFinished = input.currTopicType.flatMapLatest { type in
+    /// 初始化
+    ///
+    /// - Parameters:
+    ///   - currContentReLoadIndex: 当前主题对应的资讯索引
+    ///   - currContentLoadMoreIndex: 当前主题加载更多时用的索引
+    init(currContentReLoadIndex: Observable<Int>, currContentLoadMoreIndex: Observable<Int>) {
+        let topicService = NewsTopicSerivce.defaultService
+        let newsService = NewsMoyaService.defaultService
+        
+        newsTopicNameArray = Observable.just(topicService.topicNameArray())
+        let newsContentReload = currContentReLoadIndex.map({
+            return topicService.topicType(of: $0)
+        }).flatMapLatest { type in
             return newsService.requestNewsData(of: type)
         }
-        newsContentLoadMoreFinished = input.lastTopicType.flatMapLatest { type in
+        let newsContentLoadMore = currContentLoadMoreIndex.map({
+            return topicService.topicType(of: $0)
+        }).flatMapLatest { type in
             return newsService.requestNewsData(of: type)
         }
+        newsContentReloadFinished = Observable.zip(currContentReLoadIndex.asObservable(), newsContentReload.asObservable(), resultSelector: { (index, tuple) in
+            return (index, [SectionOfNews(items: [tuple.0]), SectionOfNews(items: tuple.1)])
+        })
+        newsContentLoadMoreFinished = Observable.zip(currContentLoadMoreIndex.asObservable(), newsContentLoadMore.asObservable(), resultSelector: { (index, tuple) in
+            return (index, tuple.1)
+        })
     }
 }

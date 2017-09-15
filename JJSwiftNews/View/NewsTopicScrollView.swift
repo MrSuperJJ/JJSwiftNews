@@ -40,9 +40,8 @@ class NewsTopicScrollView: UIView {
     private var lastTopicViewIndex = 0
     
     // MARK: - Life Cycle
-    init(frame: CGRect, topicViewWidth: CGFloat, topicArray: [String]) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
-        setupScrollViewContents(topicViewWidth: topicViewWidth, topicArray: topicArray)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -50,7 +49,7 @@ class NewsTopicScrollView: UIView {
     }
 
     // MARK: - 设置内容
-    private func setupScrollViewContents(topicViewWidth: CGFloat, topicArray: [String]) {
+    internal func setupScrollViewContents(topicViewWidth: CGFloat, topicArray: [String]) {
         guard topicArray.count > 0 else { return }
         topicScrollView.frame = CGRect(x: 0, y: 0, width: self.width, height: self.height)
         selectedBottomLine.frame = CGRect(x: 0, y: self.height - 2, width: topicViewWidth, height: 2)
