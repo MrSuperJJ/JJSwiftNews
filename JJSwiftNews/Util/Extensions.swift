@@ -26,13 +26,11 @@ extension Observable {
     }
 }
 
-enum RxSwiftMoyaError: String {
+enum RxSwiftMoyaError: Error {
     case JSONFormatError
     case ParseJSONError
     case OtherError
 }
-
-extension RxSwiftMoyaError: Swift.Error { }
 
 // MARK: - Int
 private let viewTagOffset = 1000

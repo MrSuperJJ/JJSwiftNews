@@ -15,7 +15,7 @@ enum NewsFetchResult {
 
 enum NewsFetchError: Error {
     case networkError
-    case dataInconsistentError
+    case jsonFormatError
     case jsonParsedError
     case noMoreDataError
     case requetFailedError
@@ -25,8 +25,8 @@ enum NewsFetchError: Error {
             switch self {
             case .networkError:
                 return "网络似乎不给力"
-            case .dataInconsistentError:
-                return "数据不一致"
+            case .jsonFormatError:
+                return "JSON格式错误"
             case .jsonParsedError:
                 return "JSON解析错误"
             case .noMoreDataError:

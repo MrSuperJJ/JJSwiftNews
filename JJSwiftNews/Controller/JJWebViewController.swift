@@ -8,7 +8,6 @@
 
 import UIKit
 import WebKit
-import Alamofire
 
 class JJWebViewController: UIViewController {
 
@@ -27,15 +26,6 @@ class JJWebViewController: UIViewController {
         wbProgressView.trackTintColor = UIColor.clear
         return wbProgressView
     }()
-    
-    fileprivate var isNetworkReachable: Bool {
-        get {
-            guard NetworkReachabilityManager(host: "www.baidu.com")?.isReachable == true else {
-                return false
-            }
-            return true
-        }
-    }
 
     internal var requestURLPath: String?
     
@@ -51,7 +41,7 @@ class JJWebViewController: UIViewController {
         self.view.addSubview(wbProgressView)
         
         // 检查网络状态
-        if isNetworkReachable {
+        if NetworkUtil.isNetworkReachable {
             requestURL()
         } else {
             self.errorRetryView = NewsErrorRetryView(frame: CGRect(x: 0, y: 0, width: self.view.width, height: self.view.height))
@@ -60,7 +50,7 @@ class JJWebViewController: UIViewController {
                 self.view.addSubview(NewsErrorRetryView)
                 
                 NewsErrorRetryView.show(errorMessage: "网络异常", retryClosure: { [unowned self] in
-                    if self.isNetworkReachable {
+                    if NetworkUtil.isNetworkReachable {
                         self.requestURL()
                         NewsErrorRetryView.hide()
                     }

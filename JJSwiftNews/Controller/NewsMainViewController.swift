@@ -100,22 +100,24 @@ class NewsMainViewController: UIViewController {
         // 返回数据，更新UI
         Observable.zip(contentScrollView.currContentReLoad.asObservable(), newsViewModel.newsContentReloadFinished.asObservable(), resultSelector: { (index, tuple) in
                 return (index, [SectionOfNews(items: [tuple.0]), SectionOfNews(items: tuple.1)])
-        })
-            .subscribe(onNext: { [unowned self] (index, array) in
+        }).subscribe(onNext: { [unowned self] (index, array) in
                 contentScrollView.stopPullToRefresh()
                 self.tableViewDataArray[index].value = array
                 self.lastNewsUniqueKey = (array.last!.items.last as! NewsModelType).uniquekey
-            }).disposed(by: disposeBag)
+            }, onError: { [unowned self] error in
+                self.showErrorInfo(error: error)
+        }).disposed(by: disposeBag)
         Observable.zip(contentScrollView.currContentLoadMore.asObservable(), newsViewModel.newsContentLoadMoreFinished.asObservable(), resultSelector: { (index, tuple) in
             return (index, tuple.1)
-        })
-            .subscribe(onNext: { [unowned self] (index, newsArray) in
+        }).subscribe(onNext: { [unowned self] (index, newsArray) in
                 contentScrollView.stopLoadingMore()
                 newsArray.forEach({ model in
                     self.tableViewDataArray[index].value[1].items += [model]
                 })
                 self.lastNewsUniqueKey = (newsArray.last!).uniquekey
-            }).disposed(by: disposeBag)
+            }, onError: { [unowned self] error in
+                self.showErrorInfo(error: error)
+        }).disposed(by: disposeBag)
     }
     
     deinit {
@@ -137,6 +139,23 @@ class NewsMainViewController: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + showTime) {
             MBProgressHUD.hide(for: self.view, animated: true)
         }
+    }
+    
+    func showErrorInfo(error: Error) {
+        let newsError: NewsFetchError
+        switch error {
+        case RxSwiftMoyaError.JSONFormatError:
+            newsError = .jsonFormatError
+        case RxSwiftMoyaError.ParseJSONError:
+            newsError = .jsonParsedError
+        case RxSwiftMoyaError.OtherError:
+            newsError = .requetFailedError
+        case NewsFetchError.networkError:
+            newsError = .networkError
+        default:
+            newsError = .requetFailedError
+        }
+        showPopView(message: newsError.description, showTime: 1.5)
     }
 }
 
