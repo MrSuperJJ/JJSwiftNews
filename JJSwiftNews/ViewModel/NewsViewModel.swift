@@ -13,8 +13,8 @@ import RxCocoa
 struct NewsViewModel {
     
     internal let newsTopicNameArray: Observable<[String]>
-    internal let newsContentReloadFinished: Observable<(Int, [SectionOfNews])>
-    internal let newsContentLoadMoreFinished:  Observable<(Int, [NewsModelType])>
+    internal let newsContentReloadFinished: Observable<NewsFetchResult>
+    internal let newsContentLoadMoreFinished:  Observable<NewsFetchResult>
 
     /// 初始化
     ///
@@ -28,19 +28,35 @@ struct NewsViewModel {
         newsTopicNameArray = Observable.just(topicService.topicNameArray())
         let newsContentReload = currContentReLoadIndex.map({
             return topicService.topicType(of: $0)
-        }).flatMapLatest { type in
+        }).flatMapLatest { type -> Observable<RxSwiftMoyaResult> in
+            guard NetworkUtil.isNetworkReachable else {
+                return Observable.of(RxSwiftMoyaResult.failure(RxSwiftMoyaError.networkError))
+            }
             return newsService.requestNewsData(of: type)
         }
         let newsContentLoadMore = currContentLoadMoreIndex.map({
             return topicService.topicType(of: $0)
-        }).flatMapLatest { type in
+        }).flatMapLatest { type -> Observable<RxSwiftMoyaResult> in
+            guard NetworkUtil.isNetworkReachable else {
+                return Observable.of(RxSwiftMoyaResult.failure(RxSwiftMoyaError.networkError))
+            }
             return newsService.requestNewsData(of: type)
         }
-        newsContentReloadFinished = Observable.zip(currContentReLoadIndex.asObservable(), newsContentReload.asObservable(), resultSelector: { (index, tuple) in
-            return (index, [SectionOfNews(items: [tuple.0]), SectionOfNews(items: tuple.1)])
+        newsContentReloadFinished = Observable.zip(currContentReLoadIndex.asObservable(), newsContentReload.asObservable(), resultSelector: { (index, result) in
+            switch result {
+            case .success(let tuple):
+                return NewsFetchResult.success((index, [SectionOfNews(items: [tuple.0]), SectionOfNews(items: tuple.1)]))
+            case .failure(let error):
+                return NewsFetchResult.failure((index, NewsFetchError(error)))
+            }
         })
-        newsContentLoadMoreFinished = Observable.zip(currContentLoadMoreIndex.asObservable(), newsContentLoadMore.asObservable(), resultSelector: { (index, tuple) in
-            return (index, tuple.1)
+        newsContentLoadMoreFinished = Observable.zip(currContentLoadMoreIndex.asObservable(), newsContentLoadMore.asObservable(), resultSelector: { (index, result) in
+            switch result {
+            case .success(let tuple):
+                return NewsFetchResult.success((index, [SectionOfNews(items: [tuple.0]), SectionOfNews(items: tuple.1)]))
+            case .failure(let error):
+                return NewsFetchResult.failure((index, NewsFetchError(error)))
+            }
         })
     }
 }

@@ -37,13 +37,11 @@ protocol NewsModelType {
     var url: String { get }
 }
 
-typealias NewsDataResultObservable = Observable<([BannerModelType], [NewsModelType])>
-
 protocol TopicService {
     func topicNameArray() -> [String]
     func topicType(of index: Int) -> String
 }
 
 protocol NewsService {
-    func requestNewsData(of newsType: String) -> NewsDataResultObservable
+    func requestNewsData(of newsType: String) -> Observable<RxSwiftMoyaResult>
 }

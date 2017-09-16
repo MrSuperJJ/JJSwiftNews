@@ -34,7 +34,7 @@ class NewsErrorRetryView: UIView {
         super.draw(rect)
 
         noNetImageView.center = CGPoint(x: self.center.x, y: noNetImageView.center.y)
-        noNetImageView.image = UIImage(named: "icon_zixun_nonet")
+        noNetImageView.image = UIImage(named: "icon_error")
         
         errorLabel.center = CGPoint(x: self.center.x, y: errorLabel.center.y)
         errorLabel.textAlignment = .center

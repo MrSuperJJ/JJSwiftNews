@@ -28,12 +28,18 @@ struct NewsMoyaService: NewsService {
         provider = RxMoyaProvider<NewsRequestType>(endpointClosure: endpointClosure)
     }
 
-    func requestNewsData(of newsType: String) -> NewsDataResultObservable {
+    func requestNewsData(of newsType: String) -> Observable<RxSwiftMoyaResult> {
         return provider.request(.requestData(newsType: newsType)).mapJSON(failsOnEmptyData: true).mapObject(type: NewsResponseData.self).map {
-            let bannerModelCount = Int.random(1...4) ///<Banner数量
-            let newsModelArray = $0.result!.newsDataArray!
-            return (Array(newsModelArray[0..<bannerModelCount].map({ return BannerModel(newsModel: $0)})), Array(newsModelArray[bannerModelCount...newsModelArray.count-1]))
-        }
+            let bannerModelCount = Int.random(1...4) ///<随机生成Banner数量
+            guard let newsModelArray = $0.result?.newsDataArray else {
+                throw RxSwiftMoyaError.noResultError($0.reason)
+            }
+            return RxSwiftMoyaResult.success((
+                Array(newsModelArray[0..<bannerModelCount].map({ return BannerModel(newsModel: $0)})),
+                Array(newsModelArray[bannerModelCount...newsModelArray.count-1]))
+            )}.retry(3).catchError({ error in
+                return Observable.of(RxSwiftMoyaResult.failure(error))
+            })
     }
 
 }

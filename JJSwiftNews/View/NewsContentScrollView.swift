@@ -166,7 +166,8 @@ class NewsContentScrollView: UIView {
     internal func showNewsErrorRetryView(errorMessage: String) {
         if let errorRetryView = self.errorRetryView {
             errorRetryView.show(errorMessage: errorMessage, retryClosure: { [unowned self] in
-//                self.startPullToRefresh()
+                let index = Int(self.contentScrollView.contentOffset.x / self.width)
+                self.startPullToRefresh(of: index)
             })
         }
     }

@@ -16,20 +16,14 @@ extension Observable {
     func mapObject<T: BaseMappable>(type: T.Type) -> Observable<T>  {
         return self.map { response in
             guard let dict = response as? [String: Any] else {
-                throw RxSwiftMoyaError.JSONFormatError
+                throw RxSwiftMoyaError.jsonFormatError
             }
             guard let observable = Mapper<T>().map(JSON: dict) else {
-                throw RxSwiftMoyaError.ParseJSONError
+                throw RxSwiftMoyaError.jsonParsedError
             }
             return observable
         }
     }
-}
-
-enum RxSwiftMoyaError: Error {
-    case JSONFormatError
-    case ParseJSONError
-    case OtherError
 }
 
 // MARK: - Int

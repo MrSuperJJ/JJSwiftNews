@@ -27,14 +27,6 @@ class NewsMainViewController: UIViewController {
     // MARK: - Properties
     private var topicScrollView: NewsTopicScrollView?
     fileprivate var bodyScrollView: NewsContentScrollView?
-    
-    fileprivate var bannerModelArray = [BannerModelType]()
-    fileprivate var newsModelArray   = [NewsModelType]()
-    fileprivate var lastNewsUniqueKey = ""               // 最后一条资讯的uniquekey
-    // TableView
-    private let topicViewWidth = CGFloat(77)
-    fileprivate let topCellHeight = CGFloat(adValue: 162)
-    fileprivate let norCellHeight = CGFloat(adValue: 76)
     // ViewModel
     fileprivate var newsViewModel: NewsViewModel!                                            ///<ViewModel
     fileprivate var newsDataSources = [RxTableViewSectionedReloadDataSource<SectionOfNews>]()   ///<RxTableViewDataSource
@@ -66,7 +58,7 @@ class NewsMainViewController: UIViewController {
                                       currContentLoadMoreIndex: contentScrollView.currContentLoadMoreIndex.asObserver())
         newsViewModel.newsTopicNameArray
             .subscribe(onNext: { [unowned self] in
-            topicScrollView.setupScrollViewContents(topicViewWidth: self.topicViewWidth, topicArray: $0)
+            topicScrollView.setupScrollViewContents(topicViewWidth: CGFloat(77), topicArray: $0)
             contentScrollView.setupScrollView(tableViewCount: $0.count, bind: { index, tableView in
                 self.tableViewDataArray.append(Variable([]))
                 self.newsDataSources.append(RxTableViewSectionedReloadDataSource<SectionOfNews>())
@@ -79,23 +71,37 @@ class NewsMainViewController: UIViewController {
         }).disposed(by: disposeBag)
 
         newsViewModel.newsContentReloadFinished
-            .subscribe(onNext: { [unowned self] (index, array) in
+            .subscribe(onNext: { [unowned self] result in
                 contentScrollView.stopPullToRefresh()
-                self.tableViewDataArray[index].value = array
-                self.lastNewsUniqueKey = (array.last!.items.last as! NewsModelType).uniquekey
-            }, onError: { [unowned self] error in
-                self.showErrorInfo(error: error)
-        }).disposed(by: disposeBag)
+                switch result {
+                case .success(let tuple):
+                    self.tableViewDataArray[tuple.0].value = tuple.1
+                case .failure(let tuple):
+                    if self.tableViewDataArray[tuple.0].value.count > 0 {
+                        self.showPopView(message: tuple.1.description, showTime: 1)
+                    } else {
+                        contentScrollView.showNewsErrorRetryView(errorMessage: tuple.1.description)
+                    }
+                }
+                }
+            ).disposed(by: disposeBag)
         newsViewModel.newsContentLoadMoreFinished
-            .subscribe(onNext: { [unowned self] (index, newsArray) in
+            .subscribe(onNext: { [unowned self] result in
                 contentScrollView.stopLoadingMore()
-                newsArray.forEach({ model in
-                    self.tableViewDataArray[index].value[1].items += [model]
-                })
-                self.lastNewsUniqueKey = (newsArray.last!).uniquekey
-            }, onError: { [unowned self] error in
-                self.showErrorInfo(error: error)
-        }).disposed(by: disposeBag)
+                switch result {
+                case .success(let tuple):
+                    tuple.1[1].items.forEach({ model in
+                        self.tableViewDataArray[tuple.0].value[1].items += [model]
+                    })
+                case .failure(let tuple):
+                    if self.tableViewDataArray[tuple.0].value.count > 0 {
+                        self.showPopView(message: tuple.1.description, showTime: 1)
+                    } else {
+                        contentScrollView.showNewsErrorRetryView(errorMessage: tuple.1.description)
+                    }
+                }
+                }
+            ).disposed(by: disposeBag)
     }
     
     deinit {
@@ -118,29 +124,12 @@ class NewsMainViewController: UIViewController {
             MBProgressHUD.hide(for: self.view, animated: true)
         }
     }
-    
-    func showErrorInfo(error: Error) {
-        let newsError: NewsFetchError
-        switch error {
-        case RxSwiftMoyaError.JSONFormatError:
-            newsError = .jsonFormatError
-        case RxSwiftMoyaError.ParseJSONError:
-            newsError = .jsonParsedError
-        case RxSwiftMoyaError.OtherError:
-            newsError = .requetFailedError
-        case NewsFetchError.networkError:
-            newsError = .networkError
-        default:
-            newsError = .requetFailedError
-        }
-        showPopView(message: newsError.description, showTime: 1.5)
-    }
 }
 
 extension NewsMainViewController: UITableViewDelegate {
 
     internal func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return CGFloat(indexPath.section == 0 ? topCellHeight : norCellHeight)
+        return CGFloat(indexPath.section == 0 ? CGFloat(adValue: 162) : CGFloat(adValue: 76))
     }
     
     fileprivate func configureTableViewDataSource(_ newsDataSource: RxTableViewSectionedReloadDataSource<SectionOfNews>) {
@@ -153,7 +142,7 @@ extension NewsMainViewController: UITableViewDelegate {
                 if let bannerView = bannerView {
                     bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
                 } else {
-                    let bannerView = NewsBannerView(frame: CGRect(x: 0, y:0, width:cell.width, height: self.topCellHeight))
+                    let bannerView = NewsBannerView(frame: CGRect(x: 0, y:0, width:cell.width, height: cell.height))
                     bannerView.setupScrollViewContents(bannerModelArray: element as! [BannerModelType])
                     bannerView.shouldScrollAutomatically = true
                     bannerView.tag = newsViewTag
@@ -171,7 +160,7 @@ extension NewsMainViewController: UITableViewDelegate {
                 if let contentView = contentView {
                     contentView.updateView(newsModel: element as! NewsModelType)
                 } else {
-                    let contentView = NewsContentView(frame: CGRect(x: 0, y:0, width:cell.width, height: self.norCellHeight), isPure: isPure)
+                    let contentView = NewsContentView(frame: CGRect(x: 0, y:0, width:cell.width, height: cell.height), isPure: isPure)
                     contentView.tag = newsViewTag
                     contentView.updateView(newsModel: element as! NewsModelType)
                     cell.contentView.addSubview(contentView)
