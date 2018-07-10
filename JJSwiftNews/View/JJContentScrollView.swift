@@ -131,6 +131,8 @@ class JJContentScrollView: UIView {
                 lastBannerView.stopScroll()         // 停止上一个页面的Banner滚动
             }
             lastTableView.mj_header.endRefreshing() // 停止上一个页面的下拉刷新
+            let indexPath = IndexPath(row: 0, section: 0)
+            lastTableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
         }
     }
 
