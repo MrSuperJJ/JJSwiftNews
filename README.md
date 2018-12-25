@@ -37,7 +37,7 @@
 	1.资讯类型展示，在页面顶部展示不同资讯类型，实现点击类型切换或滑动页面切换；
 </div>
 <div yne-bulb-block="paragraph" style="white-space: pre-wrap; line-height: 1.5; font-size: 14px;">
-	2.资讯列表展示，同类型下取前4条资讯置顶（Banner），其他为普通图文资讯；
+	2.资讯列表展示，同类型下取前n(n为1-4间的随机数)条资讯置顶（Banner），其他为普通图文或纯文本资讯；
 </div>
 <div yne-bulb-block="paragraph" style="white-space: pre-wrap; line-height: 1.5; font-size: 14px;">
 	3.资讯详情展示，点击资讯列表某一条资讯，展示详情；
@@ -86,6 +86,6 @@
 </div>
 
 <div yne-bulb-block="paragraph" style="white-space: pre-wrap; line-height: 1.5; font-size: 14px;">
-	Tips:refactoring分支已经对数据存取方式进行重构
+	Tips:master分支已经合入重构后的代码
 </div>
 
